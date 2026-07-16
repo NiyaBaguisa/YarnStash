@@ -23,7 +23,28 @@ export default function AddYarn() {
 
   const pickImage = async()=>{
     //request user permission to access photo library
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    //if permission is NOT granted alert user that permission is needed
+    if (!permissionResult.granted){
+      Alert.alert('Permission required', 'Permission to access the media Library is required.');
+      return;
+    }
+
+    //if permission granted launch the image library picker
+
+  let result = await ImagePicker.launchImageLibraryAsync({
+    mediaTypes:'images',
+    quality: 0.5,
+    allowsEditing: true
+  });
+
+  console.log(result);
+  //if the user backs out of upload, cancel operation
+
+  if(!result.canceled){
+    setImage(result.assets[0].uri);
   }
+  };
 
   const {reset, handleSubmit, control, formState: {errors},} = useForm<Inputs>();
  //connect to db
@@ -68,6 +89,10 @@ export default function AddYarn() {
         )}
         name="bin"
       />
+      <View>
+        <Button title="choose an image from camera roll" onPress={pickImage}/>
+        {image && <Image source={{uri:image}} style={styles.image}/>}
+      </View>
 
 
       <Controller
@@ -242,14 +267,15 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 50,
     paddingHorizontal: 16,
-    
-    
-    
+ 
   },
   controllerGroup:{
     width: '90%',
     justifyContent: 'flex-start',
     marginBottom: 10,
+  },
+  image:{
+    width: 200
   }
  
 });

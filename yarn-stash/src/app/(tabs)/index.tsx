@@ -1,4 +1,4 @@
-import { Text, View, StyleSheet } from "react-native";
+import { Text, View, StyleSheet, Button } from "react-native";
 import { Link } from "expo-router";
 import {useState, useEffect} from 'react';
 import MasterList from "@/MasterList";
@@ -10,7 +10,10 @@ export default function Index() {
   
 return (
     <View style={styles.container}>
-      <MasterList/>
+      {/*<MasterList/>*/}
+      <Text>User's Stash</Text>
+      <Text>XXX Skeins</Text>
+     
     
     
     </View>
