@@ -1,5 +1,5 @@
 // this is where the boxes for the yarn is made and then the bins and the horizontal scroll bars will just take in this component
-import { Text, View, StyleSheet } from "react-native";
+import { Text, View,Image,  StyleSheet } from "react-native";
 
 interface Yarn{
   yarnName: string;
@@ -8,30 +8,45 @@ interface Yarn{
   weight: number;
   fiber: string;
   skeins: number;
- // image: string;
+ image: any;
 }
 export default function YarnThumbnail(item: Yarn){
     return(
-        <View style={styles.imageContainer}>
-           {/* <img style={styles.thumbnail} src={item.image}/> */}
-           <Text>{item.yarnName}</Text>
+        <View style={styles.thumbnailContainer}>
+          <Image style={styles.thumbnail} source={require('../../assets/images/yarn-stash-yarn-ball-icon.svg')}/>
+           <View style={styles.detailsContainer}>
+             <Text>{item.yarnName}</Text>
+              <Text>{item.brandName}</Text>
+               <Text>{item.color}</Text>
+{/* material tag*/}
+{/* line*/}
+<Text>{item.skeins}</Text>
+
+           </View>
+          
         </View>
 
     )
 }
 
 const styles = StyleSheet.create({
-  imageContainer: {
-    backgroundColor: '#FFFFFF',
-    justifyContent: "center",
-    padding: 5,
-    borderRadius: 20,
-    margin: 5,
+  thumbnailContainer:{
+  width: 200,
+  height: 200,
+    justifyContent: 'center',
+    backgroundColor: 'green',
+    padding: 10
   },
   thumbnail:{
     width: 100,
-    height: 100
+    height: 100,
+    backgroundColor: 'red'
   },
+  detailsContainer:{
+    backgroundColor: 'blue',
+   
+    
+  }
 
   
 });
