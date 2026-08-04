@@ -14,6 +14,8 @@ interface Yarn{
  skeins: number;
  
 }
+
+
 export default function MasterList(){
     const [masterInventoryList, setMasterInventoryList] = useState<Yarn[]>([]);
     const [isLoading, setIsLoading] = useState(true);

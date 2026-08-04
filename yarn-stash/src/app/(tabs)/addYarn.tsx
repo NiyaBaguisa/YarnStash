@@ -1,5 +1,6 @@
-import { TextInput, View, StyleSheet, Button, Text, Image, Alert } from 'react-native';
+import { TextInput, View, ScrollView, StyleSheet, Button, Text, Image, Alert } from 'react-native';
 import {useForm, SubmitHandler, Controller} from "react-hook-form";
+import {Picker} from '@react-native-picker/picker';
 import { useSQLiteContext } from 'expo-sqlite';
 import * as ImagePicker from 'expo-image-picker';
 import {useState, useEffect} from 'react';
@@ -8,7 +9,7 @@ import {useState, useEffect} from 'react';
 //fetch data from json file and sort them into bins
 type Inputs ={
   bin: string
-  photo: string
+  image: string
   yarnName: string
   brandName: string
   color: string
@@ -18,8 +19,13 @@ type Inputs ={
   
 }
 export default function AddYarn() {
+// arr of bin options
+const [binOptions, setBinOptions] = useState<string []>([]);
+
+//use state for the bin dropdown
+const [selectedBin, setSelectedBin] = useState('');  
   //use state for the image picker
-  const [image, setImage] = useState<string>('example image url')
+  const [image, setImage] = useState<string>('')
 
   const pickImage = async()=>{
     //request user permission to access photo library
@@ -39,23 +45,47 @@ export default function AddYarn() {
   });
 
   console.log(result);
+  
   //if the user backs out of upload, cancel operation
 
   if(!result.canceled){
-    setImage(result.assets[0].uri);
+    const uri = result.assets[0].uri;
+    setImage(uri);
+    setValue('image', uri);
   }
   };
 
-  const {reset, handleSubmit, control, formState: {errors},} = useForm<Inputs>();
+  const {reset, handleSubmit, control, setValue, formState: {errors},} = useForm<Inputs>();
  //connect to db
  const db = useSQLiteContext();
+
+   //load bin list
+   //replace this table with a specific bin table
+   const loadBinList = async()=>{
+    try{
+            const results = await db.getAllAsync(`SELECT DISTINCT title FROM bins
+                ORDER BY id DESC `);
+                setBinOptions( (results as string[]).map(row => Object.values(row)[0]))
+                console.log(binOptions)
+           
+        }catch(e){
+            console.log("error loading bin data", e)
+
+ }
+
+   };
+
+   useEffect(()=>{
+        loadBinList();
+
+    }, [])
 
   //on submit log the data to thre console
   const onSubmit: SubmitHandler<Inputs> = async(data) => {
     try{
        await db.runAsync(
-    'INSERT INTO master (yarnName, brandName) VALUES (?,?,?,?,?,?,?,?)',
-    [data.bin, data.photo, data.yarnName, data.brandName, data.color, Number(data.weight), data.fiber, Number(data.skeins)]
+    'INSERT INTO master (bin, image, yarnName, brandName, color, weight, fiber, skeins) VALUES (?,?,?,?,?,?,?,?)',
+    [data.bin || 'Default Bin', data.image || '', data.yarnName, data.brandName, data.color, Number(data.weight), data.fiber, Number(data.skeins)]
    );
    
     console.log(data)
@@ -70,47 +100,34 @@ export default function AddYarn() {
 
  
   return (
-    <View style={styles.container}>
+
+    <ScrollView style={styles.container}>
     
       <Controller
         control={control}
         rules={{
           required: true,
         }}
-        render={({ field: { onChange, value } }) => (
-          <TextInput
-          style={styles.input}
-            placeholder="Choose a bin"
-            placeholderTextColor="#999999"
-            
-            onChangeText={onChange}
-            value={value}
-          />
+        render= {({field: {value}}) =>(
+          <Picker 
+          selectedValue={selectedBin}
+          onValueChange={value=> setSelectedBin(value)}>
+            {binOptions.map((binName)=>(
+              <Picker.Item label={binName} value={binName}/>
+            ))}
+
+          </Picker>
         )}
+    
+        
         name="bin"
       />
-      <View>
+      
+
+      <View style={styles.imageContainer}>
         <Button title="choose an image from camera roll" onPress={pickImage}/>
         {image && <Image source={{uri:image}} style={styles.image}/>}
       </View>
-
-
-      <Controller
-        control={control}
-        rules={{
-          required: true,
-        }}
-        render={({ field: { onChange, value } }) => (
-          <TextInput
-          style={styles.input}
-            placeholder="Add Photo"
-              placeholderTextColor="#999999"
-            onChangeText={onChange}
-            value={value}
-          />
-        )}
-        name="photo"
-      />
 
       <View style={styles.controllerGroup}>
         <Text>Yarn Name</Text>
@@ -247,16 +264,15 @@ export default function AddYarn() {
         <Button title="Submit" onPress={handleSubmit(onSubmit)}/>
 
      
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#FDFDFD'
+    marginTop: 50,
+    
+
 
     
   },
@@ -274,8 +290,14 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     marginBottom: 10,
   },
+  imageContainer:{
+    flex:1 ,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
   image:{
-    width: 200
+    width: 200,
+    height: 200
   }
  
 });

@@ -1,13 +1,35 @@
 import { Tabs, useRouter } from 'expo-router';
 import { SQLiteProvider } from 'expo-sqlite';
-import { View, Alert, Pressable, TouchableOpacity, Text, StyleSheet, Animated } from 'react-native';
+import { View, Alert, Modal, TouchableOpacity, Text, StyleSheet, Pressable, TextInput} from 'react-native';
 import { useState, useEffect } from 'react';
+import AddBinModal from '@/components/AddBinModal';
+
+interface Yarn{
+  id: number;
+  bin: string;
+  image: any;
+  yarnName: string;
+  brandName: string;
+  color: string;
+  weight: number;
+  fiber: string;
+  skeins: number;
+ 
+};
 
 
 
 export default function TabLayout() {
+
+  // state for text input in add bin modal
+  const [binName, setBinName] = useState('');
+
+  // is "create bin" modal visible state
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
   // keep track of visibility of add yarn and add bin menu 
   const [isMenuVisible, setIsMenuVisible] = useState(false);
+
   useEffect(()=>{  console.log('isMenuVisible changed to: ', isMenuVisible)
 
   },[isMenuVisible])
@@ -17,9 +39,8 @@ export default function TabLayout() {
 const handlePress = () =>{
   setIsMenuVisible(prev=> !prev)
 
-  
-
 }
+
 
 
   return (
@@ -27,13 +48,13 @@ const handlePress = () =>{
     <SQLiteProvider
       databaseName="inventory.db"
       //create table
-      //TO DO: add default image for the photo option
+     
       onInit={async (db) => {
         await db.execAsync(`
                 CREATE TABLE IF NOT EXISTS master (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 bin TEXT DEFAULT 'Default Bin',
-                photo TEXT DEFAULT '',
+                image TEXT DEFAULT '',
                 yarnName TEXT NOT NULL,
                 brandName TEXT NOT NULL,
                 color TEXT NOT NULL,
@@ -42,8 +63,42 @@ const handlePress = () =>{
                 skeins INTEGER NOT NULL
                 );
                 PRAGMA journal_mode =WAL;`
-
         )
+          type ColumnInfo = {
+    cid: number;
+    name: string;
+    type: string;
+    notnull: number;
+    dflt_value: string | null;
+    pk: number;
+  };
+
+  const columns = await db.getAllAsync<ColumnInfo>(`PRAGMA table_info(master);`);
+  const existingNames = new Set(columns.map((col) => col.name));
+
+  // note: SQLite requires a DEFAULT when adding a NOT NULL column to a
+  // table that may already have rows, so these all specify one
+  const requiredColumns: { name: string; ddl: string }[] = [
+    { name: 'bin', ddl: `bin TEXT DEFAULT 'Default Bin'` },
+    { name: 'image', ddl: `image TEXT DEFAULT ''` },
+    { name: 'color', ddl: `color TEXT DEFAULT ''` },
+    { name: 'weight', ddl: `weight INTEGER DEFAULT 0` },
+    { name: 'fiber', ddl: `fiber TEXT DEFAULT ''` },
+    { name: 'skeins', ddl: `skeins INTEGER DEFAULT 0` },
+  ];
+
+  for (const col of requiredColumns) {
+    if (!existingNames.has(col.name)) {
+      await db.execAsync(`ALTER TABLE master ADD COLUMN ${col.ddl};`);
+    }
+  }
+
+  //bins table
+   await db.execAsync(`
+                CREATE TABLE IF NOT EXISTS bins (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                title TEXT NOT NULL UNIQUE
+                );`)
 
       }}
       //keep one stable connection
@@ -76,6 +131,13 @@ const handlePress = () =>{
 
       </Tabs>
 
+       <AddBinModal
+     isModalVisible={isModalVisible}
+    setIsModalVisible={setIsModalVisible}
+    binName={binName}
+    setBinName={setBinName}
+     ></AddBinModal>
+
     </SQLiteProvider>
     {
         isMenuVisible && (
@@ -89,16 +151,19 @@ const handlePress = () =>{
 
        <TouchableOpacity
           style={styles.plusButton}
-          onPress={()=> console.log("go to bin form")}>
+          onPress={()=> setIsModalVisible(true)}>
             <Text>Bin form</Text>
 
       </TouchableOpacity>
+
+      
 
           </View>
 
 
         )
       }
+    
 
 </>
   
