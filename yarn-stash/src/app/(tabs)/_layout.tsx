@@ -1,8 +1,8 @@
 import { Tabs, useRouter } from 'expo-router';
 import { SQLiteProvider } from 'expo-sqlite';
 import { View, Alert, Modal, TouchableOpacity, Text, StyleSheet, Pressable, TextInput} from 'react-native';
-import { useState, useEffect } from 'react';
-import AddBinModal from '@/components/AddBinModal';
+import { useState, useEffect, use } from 'react';
+
 
 interface Yarn{
   id: number;
@@ -21,26 +21,7 @@ interface Yarn{
 
 export default function TabLayout() {
 
-  // state for text input in add bin modal
-  const [binName, setBinName] = useState('');
-
-  // is "create bin" modal visible state
-  const [isModalVisible, setIsModalVisible] = useState(false);
-
-  // keep track of visibility of add yarn and add bin menu 
-  const [isMenuVisible, setIsMenuVisible] = useState(false);
-
-  useEffect(()=>{  console.log('isMenuVisible changed to: ', isMenuVisible)
-
-  },[isMenuVisible])
-
   const router = useRouter();
-
-const handlePress = () =>{
-  setIsMenuVisible(prev=> !prev)
-
-}
-
 
 
   return (
@@ -50,10 +31,14 @@ const handlePress = () =>{
       //create table
      
       onInit={async (db) => {
+         // wipe the old table entirely — we're changing bin's type, not just its name
+  //await db.execAsync(`DROP TABLE IF EXISTS master;`);
+  
+
         await db.execAsync(`
                 CREATE TABLE IF NOT EXISTS master (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                bin TEXT DEFAULT 'Default Bin',
+                binId INTEGER REFERENCES bins(id),
                 image TEXT DEFAULT '',
                 yarnName TEXT NOT NULL,
                 brandName TEXT NOT NULL,
@@ -93,25 +78,38 @@ const handlePress = () =>{
     }
   }
 
-  //bins table
+  //bins table 
    await db.execAsync(`
                 CREATE TABLE IF NOT EXISTS bins (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 title TEXT NOT NULL UNIQUE
                 );`)
 
-      }}
+                //log contents of bins and tables
+      const tables = await db.getAllAsync(
+    `SELECT * FROM master;`
+  );
+  console.log('Master Yarn List:', tables);
+
+  const bins = await db.getAllAsync(`SELECT * FROM bins;`);
+  console.log('Bins:', bins);
+              }}
+      
       //keep one stable connection
       options={{ useNewConnection: false }}>
 
       <Tabs screenOptions={{ headerShown: false }}>
-        <Tabs.Screen name="index" options={{ title: 'Home' }} />
+        <Tabs.Screen 
+        name="index" 
+        options={{ title: 'Home' }} />
+
         <Tabs.Screen 
         name="addYarn" 
         options={{
           href: null, // Hides it from the tab menu
-        }} 
-      />
+        }}/>
+      
+      
 
       <Tabs.Screen
         name="add"
@@ -120,7 +118,7 @@ const handlePress = () =>{
           tabBarButton: (props) => (
             <TouchableOpacity
             style={styles.plusButton}
-              onPress={handlePress}
+              onPress={()=> router.push('/(tabs)/addYarn')}
             >
               <Text>+</Text>
               </TouchableOpacity>
@@ -131,38 +129,10 @@ const handlePress = () =>{
 
       </Tabs>
 
-       <AddBinModal
-     isModalVisible={isModalVisible}
-    setIsModalVisible={setIsModalVisible}
-    binName={binName}
-    setBinName={setBinName}
-     ></AddBinModal>
-
-    </SQLiteProvider>
-    {
-        isMenuVisible && (
-          <View style={styles.menuContainer}>
-             <TouchableOpacity
-          style={styles.plusButton}
-          onPress={()=> router.push('/(tabs)/addYarn')}>
-            <Text>yarn form</Text>
-
-      </TouchableOpacity>
-
-       <TouchableOpacity
-          style={styles.plusButton}
-          onPress={()=> setIsModalVisible(true)}>
-            <Text>Bin form</Text>
-
-      </TouchableOpacity>
-
       
 
-          </View>
+    </SQLiteProvider>
 
-
-        )
-      }
     
 
 </>

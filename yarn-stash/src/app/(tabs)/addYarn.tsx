@@ -1,14 +1,15 @@
-import { TextInput, View, ScrollView, StyleSheet, Button, Text, Image, Alert } from 'react-native';
+import { TextInput, View, ScrollView, Modal,Pressable, StyleSheet, Button, Text, Image, Alert } from 'react-native';
 import {useForm, SubmitHandler, Controller} from "react-hook-form";
 import {Picker} from '@react-native-picker/picker';
 import { useSQLiteContext } from 'expo-sqlite';
 import * as ImagePicker from 'expo-image-picker';
 import {useState, useEffect} from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 // add the data from the yarn form to the inventory json file
 //fetch data from json file and sort them into bins
 type Inputs ={
-  bin: string
+  binId: number
   image: string
   yarnName: string
   brandName: string
@@ -21,11 +22,16 @@ type Inputs ={
 export default function AddYarn() {
 // arr of bin options
 const [binOptions, setBinOptions] = useState<string []>([]);
-
 //use state for the bin dropdown
-const [selectedBin, setSelectedBin] = useState('');  
+const [selectedBin, setSelectedBin] = useState(''); 
+// state for visibiltity of new bin modal
+const [isModalVisible, setIsModalVisible] = useState(false);
+//state for bin name user input
+const [inputBin, setInputBin] = useState('');
+
+
   //use state for the image picker
-  const [image, setImage] = useState<string>('')
+  const [image, setImage] = useState<string>('');
 
   const pickImage = async()=>{
     //request user permission to access photo library
@@ -59,14 +65,14 @@ const [selectedBin, setSelectedBin] = useState('');
  //connect to db
  const db = useSQLiteContext();
 
-   //load bin list
-   //replace this table with a specific bin table
+   //load bin table
    const loadBinList = async()=>{
     try{
+      //select only unique values from bin table
             const results = await db.getAllAsync(`SELECT DISTINCT title FROM bins
                 ORDER BY id DESC `);
                 setBinOptions( (results as string[]).map(row => Object.values(row)[0]))
-                console.log(binOptions)
+                console.log("here are the unique values in the bins table: ",binOptions)
            
         }catch(e){
             console.log("error loading bin data", e)
@@ -77,22 +83,46 @@ const [selectedBin, setSelectedBin] = useState('');
 
    useEffect(()=>{
         loadBinList();
-
     }, [])
+
+    //handle add new bin button press 
+    function handleNewBinButtonPress(){
+      //show modal
+      setIsModalVisible(true);
+    }
+
+    //add data to bin table
+    const addNewBin = async()=>{
+        if(!inputBin.trim()){
+        Alert.alert('Bin name required')
+        return;
+    }
+      try{
+        await db.runAsync('INSERT INTO bins (title) VALUES(?)',[inputBin]);
+           console.log('a new bin named: ', inputBin ,'was added');
+
+      }catch(e){
+         console.log('error logging new bin into database', e)
+
+      }
+    
+    }
 
   //on submit log the data to thre console
   const onSubmit: SubmitHandler<Inputs> = async(data) => {
     try{
        await db.runAsync(
-    'INSERT INTO master (bin, image, yarnName, brandName, color, weight, fiber, skeins) VALUES (?,?,?,?,?,?,?,?)',
-    [data.bin || 'Default Bin', data.image || '', data.yarnName, data.brandName, data.color, Number(data.weight), data.fiber, Number(data.skeins)]
+        //add data to master yarn table ADJUST BIN DATA
+    'INSERT INTO master (binId, image, yarnName, brandName, color, weight, fiber, skeins) VALUES (?,?,?,?,?,?,?,?)',
+    [data.binId || 'Default Bin', data.image || '', data.yarnName, data.brandName, data.color, Number(data.weight), data.fiber, Number(data.skeins)]
    );
+   
    
     console.log(data)
     //to do: clear form
     reset();
     } catch(e){
-      console.log('error logging data into database: ',e)
+      console.log('error logging data into yarn database: ',e)
     }
   
   };
@@ -101,28 +131,44 @@ const [selectedBin, setSelectedBin] = useState('');
  
   return (
 
-    <ScrollView style={styles.container}>
-    
-      <Controller
-        control={control}
-        rules={{
-          required: true,
-        }}
-        render= {({field: {value}}) =>(
-          <Picker 
-          selectedValue={selectedBin}
-          onValueChange={value=> setSelectedBin(value)}>
-            {binOptions.map((binName)=>(
-              <Picker.Item label={binName} value={binName}/>
-            ))}
-
-          </Picker>
-        )}
-    
-        
-        name="bin"
-      />
+    <SafeAreaView>
+       <Modal
+    transparent ={true}
+    visible ={isModalVisible}
+    onRequestClose={()=>{
+      Alert.alert('modal has been closed.');
+      setIsModalVisible(false);
+    }}>
+      <SafeAreaView>
+        <Text>Please Input New Bin Name:</Text>
+          
+          <TextInput
+          style={styles.input}
+            placeholder="New Bin Name"
+              placeholderTextColor="#999999"
+            onChangeText={setInputBin}
+            value={inputBin}
+          />
+       
+        <Pressable
+         onPress={addNewBin}>
+          <Text>Add Bin</Text>
+        </Pressable>
+       
+      </SafeAreaView>
       
+
+    </Modal>
+
+  
+    <ScrollView >
+    
+   
+
+   
+         <Button title="+" onPress={handleNewBinButtonPress}>
+
+    </Button>
 
       <View style={styles.imageContainer}>
         <Button title="choose an image from camera roll" onPress={pickImage}/>
@@ -149,8 +195,6 @@ const [selectedBin, setSelectedBin] = useState('');
       />
 
       </View>
-    
-     
 
       <View style={styles.controllerGroup}>
         <Text>Brand Name</Text>
@@ -265,17 +309,12 @@ const [selectedBin, setSelectedBin] = useState('');
 
      
     </ScrollView>
+      </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    marginTop: 50,
-    
 
-
-    
-  },
   input: {
     backgroundColor: '#F5F5F5',
     color: '#333333',
