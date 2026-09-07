@@ -1,5 +1,5 @@
 // this is where the boxes for the yarn is made and then the bins and the horizontal scroll bars will just take in this component
-import { Text, View,Image,  StyleSheet } from "react-native";
+import { Text, View,Image, Pressable, StyleSheet } from "react-native";
 //import {ReactComponent as DefaultImage} from '@/assets/images/yarn-stash-yarn-ball-icon.svg';
 // type for yarn object
 interface Yarn{
@@ -9,7 +9,7 @@ interface Yarn{
   yarnName: string;
   brandName: string;
  color: string;
- weight: number;
+ weight: string;
   fiber: string;
  skeins: number;
  
@@ -19,8 +19,11 @@ interface Yarn{
 export default function YarnThumbnail(item: Yarn){
 
   const weights: string[] = ['Lace', 'Super Fine', 'Fine', 'Light', 'Medium', 'Bulky', 'Super Bulky', 'Jumbo'];
-  const weightDisplay = `${item.weight} ${weights[item.weight]}`
+  const weightDisplay = `${item.weight} ${weights.indexOf(item.weight)}`
     return(
+      <Pressable>
+
+     
         <View style={styles.thumbnailContainer}>
           <View style={styles.thumbnail}>
             {item.image ? (
@@ -36,13 +39,14 @@ export default function YarnThumbnail(item: Yarn){
                <Text style={styles.fiberTag}>{item.fiber}</Text>
        
 {/* line*/}
-<Text>{item.skeins}</Text>
+<Text>{item.skeins} Skeins</Text>
 
 
            </View>
                    <Text style ={styles.weightTag}>{weightDisplay}</Text>
           
         </View>
+         </Pressable>
 
     )
 }

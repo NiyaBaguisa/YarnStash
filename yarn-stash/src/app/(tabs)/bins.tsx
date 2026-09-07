@@ -1,6 +1,7 @@
 import { View, } from 'react-native';
 import {useState, useEffect} from 'react';
 import { useSQLiteContext } from 'expo-sqlite';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import BinExpandedView from "@/components/BinExpandedView";
 import BinsGridView from '@/components/BinsGridView';
 
@@ -14,8 +15,9 @@ export default function Bins() {
     // keep track of screen state
     // null / falsy = show grid of bin thumbnails
     // truthy show selected bin
-    const [selectedBin, setSelectedBin] = useState(false);
-    console.log("has a bin been selected?: ", selectedBin)
+    const [isBinSelected, setIsBinSelected] = useState<boolean>(false);
+    //state for selected bin
+    const [pressedBin, setPressedBin] = useState <Bin>();
     //use state for list of bins
     const [binsList, setBinsList] = useState<Bin[]>([]);
     // screen loading state
@@ -30,6 +32,7 @@ export default function Bins() {
            ORDER BY id DESC`)
           setBinsList(results as Bin[]);
            console.log("the bins table results", results)
+           
     
       }catch(e){
         console.log("error loading list of bins data", e)
@@ -37,17 +40,35 @@ export default function Bins() {
         setIsLoading(false);
       }
     }
-    
+    // things that run once on mount
     useEffect(()=>{
       loadBinList();
+     console.log("use effect results for binslist state:", binsList)
+     console.log("pressed Bin state: " , pressedBin) //making sure this is falsy on mount
+      
     },[])
+//things that run on every render
+    useEffect(()=>{
+      handleLiftedData();
+    })
+    //callback function to handle state passed up from grandchild: binThumbnail
+    function handleLiftedData (){
+      // update state for pressed bool
+      
+      if(pressedBin != undefined){
+        setIsBinSelected(true);
+
+      }
+  
+
+    }
 
 //TO DO: bins expanded view should take in a prop of the title of the selected bin
     return(
-        <View>
-           {/* {selectedBin? <BinExpandedView/>: <BinsGridView/>}*/} 
+        <SafeAreaView>
+           {isBinSelected? <BinExpandedView pressedBin={pressedBin} setPressedBin={setPressedBin} isBinSelected={isBinSelected} setIsBinSelected={setIsBinSelected}/>: <BinsGridView data={binsList} pressedBin={pressedBin} setPressedBin={setPressedBin}/>} 
         
-        </View>
+        </SafeAreaView>
     
         )
        

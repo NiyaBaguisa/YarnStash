@@ -1,23 +1,41 @@
-import { View, FlatList } from 'react-native';
+import { View, FlatList, Pressable, Text } from 'react-native';
 import {useState, useEffect} from 'react';
 import YarnThumbnail from "@/components/YarnThumbnail";
 import { useSQLiteContext } from "expo-sqlite";
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 // type for yarn object
 interface Yarn{
     id: number;
     bin: string;
-    photo: string
+    image: string
   yarnName: string;
   brandName: string;
  color: string;
- weight: number;
+ weight: string;
   fiber: string;
  skeins: number;
  
 }
 
-export default function BinExpandedView() {
+//Bin type
+interface Bin{
+    id: number,
+    title: string,
+}
+//props for BinExpandedView
+
+interface ExpandedViewProps{
+    pressedBin?: Bin
+    setPressedBin: (pressed: Bin | undefined)=> void,
+    isBinSelected: boolean,
+    setIsBinSelected: (isSelected: boolean) => void
+}
+
+export default function BinExpandedView({pressedBin, setPressedBin, isBinSelected, setIsBinSelected }: ExpandedViewProps) {
+//conditional rendering , false for list view, true for yarn detailed view
+const [isYarnSelected , setIsYarnSelected] = useState<boolean>();
+
 // state for this bin's content
  const [currentBinList, setCurrentBinList] = useState<Yarn[]>([])
  const db =useSQLiteContext();
@@ -25,7 +43,7 @@ export default function BinExpandedView() {
  const loadList = async()=>{
       try{
             const results = await db.getAllAsync(`SELECT * FROM master
-                WHERE bin = "Default Bin" 
+                WHERE binId = ${pressedBin?.id} 
                 ORDER BY id DESC `);
             setCurrentBinList(results as Yarn[]);
             console.log(currentBinList)
@@ -37,15 +55,29 @@ export default function BinExpandedView() {
         loadList();
 
     }, [])
+
+    function handleBack(){
+        setIsBinSelected(false);
+        setPressedBin(undefined);
+    }
     return(
-        <View>
-           
+        <SafeAreaView>
+           <View>
+            <Pressable onPress={handleBack}>
+               <Text>Back Button</Text>
+            </Pressable>
+
+           </View>
+           <View>
              <FlatList
              data={currentBinList}
              keyExtractor={(item)=> item.id.toString()}
                      renderItem={({item})=>(
                          <YarnThumbnail{...item}/>)}/>
-        </View>
+
+           </View>
+            
+        </SafeAreaView>
     
         )
        

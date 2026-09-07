@@ -1,5 +1,6 @@
-import { Text, View, ScrollView, StyleSheet } from "react-native";
+import { Text, View, ScrollView, StyleSheet, Pressable } from "react-native";
 import YarnThumbnail from "./YarnThumbnail";
+import YarnMiniThumbnail from "./YarnMiniThumbnail";
 import { useSQLiteContext } from "expo-sqlite";
 import { useEffect, useState } from "react";
 
@@ -10,18 +11,27 @@ interface Yarn{
   yarnName: string;
   brandName: string;
   color: string;
-  weight: number;
+  weight: string;
   fiber: string;
   skeins: number;
  
 };
-// BinThumbnail props: bin title and yarn items arr
+// BinThumbnail props: bin title, yarn items arr, pressed bin state, 
 interface binThumbnailProps{
-  title: string;
+  id: number,
+  title:string,
+  pressedBin?: Bin,
+  setPressedBin : (pressed:Bin) => void;
+  
 
 }
+
+interface Bin{
+    id: number,
+    title: string
+}
 // takes in an array of yarns and a label for the bin
-export default function BinThumbnail({title }: binThumbnailProps) {
+export default function BinThumbnail({id, title, pressedBin, setPressedBin}: binThumbnailProps) {
 
   //state for the list of yarn items
   const [items, setItems] = useState <Yarn []>([]);
@@ -32,7 +42,7 @@ const db =useSQLiteContext();
 const loadYarnList = async ()=>{
   try{
     const results = await db.getAllAsync(`SELECT * FROM master 
-       WHERE bin = ${title}
+       WHERE binId = ${id}
        ORDER BY id DESC`)
       setItems(results as Yarn[]);
        console.log(results)
@@ -46,33 +56,50 @@ useEffect(()=>{
   loadYarnList();
 },[])
 
-
+function handlePress(){
+// lift state to bins grid view
+setPressedBin({id: id, title: title});
+  console.log(id, title);
+  
+}
   // show the first four yarn thumbnails in a flex grid
     return (
-    <View style={styles.container}>
-      <Text>{title}</Text>
+    <Pressable style={styles.container} onPress={handlePress}>
+      <Text style={styles.title}>{title}</Text>
+      <Text style= {styles.skeins}>number Skeins</Text>
       <View style={styles.gridContainer}>
-        {items[0]&&  <YarnThumbnail {... items[0]}/>  }
-        {items[1]&&  <YarnThumbnail {... items[1]}/>  }
-        {items[2]&&  <YarnThumbnail {... items[2]}/>  }
-        {items[3]&&  <YarnThumbnail {... items[3]}/>  }
+        {items[0]&&  <YarnMiniThumbnail {... items[0]}/>  }
+         {items[1]&&  <YarnMiniThumbnail {... items[1]}/>  }
+          {items[2]&&  <YarnMiniThumbnail {... items[2]}/>  }
+           
+        
         
     
 
       </View>
      
-    </View>
+    </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
  container:{
   width:'95%',
-  padding: 5,
-  backgroundColor: '#AECBEB',
- 
+  padding: 10,
+  backgroundColor: '#FC8DA1',
+ margin: 10,
+ borderRadius: 15,
  
  },
+ title:{
+  fontSize: 24,
+  
+ },
+ skeins:{
+  fontSize: 16,
+
+ },
+
  gridContainer:{
     flex:1,
     flexDirection: 'row',

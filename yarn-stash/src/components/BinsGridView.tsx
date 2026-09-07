@@ -1,24 +1,52 @@
-import { View, FlatList } from 'react-native';
+import { View, FlatList, StyleSheet, Text, Pressable } from 'react-native';
 import {useState, useEffect} from 'react';
 import BinThumbnail from "./BinThumbnail";
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 
+interface Bin{
+    id: number,
+    title: string
+}
 
-export default function BinsGridView(){
-    //use state for list of bins
-    const [binsList, setBinsList] = useState([]);
+interface GridViewProps{
+    data: Bin[],
+    pressedBin?: Bin,
+    setPressedBin: (pressed: Bin) => void;
+   
+}
+
+export default function BinsGridView({data, pressedBin, setPressedBin} : GridViewProps){
+
 
 
 
 //map bins as Bin thumbnails
     return (
-      <FlatList
-      data={binsList}
-      renderItem= {({item}) => <BinThumbnail title ={item}/>}
+        <SafeAreaView style={styles.container}>
+            <Text style={styles.header}>X Bins</Text>
+              <FlatList
+      data={data}
+      renderItem= {({item}) => <BinThumbnail id={item.id} title={item.title} pressedBin = {pressedBin} setPressedBin={setPressedBin}/>}
       
       />
+
+        </SafeAreaView>
+    
        
     
     )
 
 };
+
+const styles = StyleSheet.create({
+ container:{
+  justifyContent: 'center',
+  alignItems: 'center'
+ 
+ },
+ header:{
+    fontSize: 36
+ }
+  
+});

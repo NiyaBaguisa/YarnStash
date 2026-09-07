@@ -1,6 +1,5 @@
-import { TextInput, View, ScrollView, Modal,Pressable, StyleSheet, Button, Text, Image, Alert } from 'react-native';
+import { TextInput, View, ScrollView, Modal,Pressable, StyleSheet, Button, Text, Image, Alert, FlatList, ImageSourcePropType } from 'react-native';
 import {useForm, SubmitHandler, Controller} from "react-hook-form";
-import {Picker} from '@react-native-picker/picker';
 import { useSQLiteContext } from 'expo-sqlite';
 import * as ImagePicker from 'expo-image-picker';
 import {useState, useEffect} from 'react';
@@ -19,16 +18,75 @@ type Inputs ={
   skeins: string
   
 }
+
+type Bin ={
+  id: number;
+  title: string;
+}
+
+type Weight ={
+  id: number,
+  name: string,
+  image: ImageSourcePropType,
+}
 export default function AddYarn() {
 // arr of bin options
-const [binOptions, setBinOptions] = useState<string []>([]);
+const [binOptions, setBinOptions] = useState<Bin[]>([]);
 //use state for the bin dropdown
-const [selectedBin, setSelectedBin] = useState(''); 
+const [selectedBin, setSelectedBin] = useState<Bin>(); 
 // state for visibiltity of new bin modal
 const [isModalVisible, setIsModalVisible] = useState(false);
 //state for bin name user input
 const [inputBin, setInputBin] = useState('');
+//state for bin dropdown
+const [isDropdownVisible, setIsDropdownVisible] = useState(false);
 
+// data for weight input
+const weights: Weight[] =[
+   {
+    id: 0,
+    name: 'Lace',
+    image: require('@/assets/images/weightImages/Weight-0-Lace.jpg'),
+  },
+  {
+    id: 1,
+    name: 'Super Fine',
+    image: require('@/assets/images/weightImages/Weight-1-SuperFine.jpg'),
+  },
+  {
+    id: 2,
+    name: 'Fine',
+    image: require('@/assets/images/weightImages/Weight-2-Fine.jpg'),
+  },
+  {
+    id: 3,
+    name: 'Light',
+    image: require('@/assets/images/weightImages/Weight-3-Light.jpg'),
+  },
+  {
+    id: 4,
+    name: 'Medium',
+    image: require('@/assets/images/weightImages/Weight-4-Medium.jpg'),
+  },
+  {
+    id: 5,
+    name: 'Bulky',
+    image: require('@/assets/images/weightImages/Weight-5-Bulky.jpg'),
+  },
+  {
+    id: 6,
+    name: 'Super Bulky',
+    image: require('@/assets/images/weightImages/Weight-6-SuperBulky.jpg'),
+  },
+  {
+    id: 7,
+    name: 'Jumbo',
+    image: require('@/assets/images/weightImages/Weight-7-Jumbo.jpg'),
+  },
+];
+
+//state for selected weight
+const [selectedWeight, setSelectedWeight] = useState<Weight>(weights[0]);
 
   //use state for the image picker
   const [image, setImage] = useState<string>('');
@@ -69,10 +127,10 @@ const [inputBin, setInputBin] = useState('');
    const loadBinList = async()=>{
     try{
       //select only unique values from bin table
-            const results = await db.getAllAsync(`SELECT DISTINCT title FROM bins
+            const results = await db.getAllAsync(`SELECT * FROM bins
                 ORDER BY id DESC `);
-                setBinOptions( (results as string[]).map(row => Object.values(row)[0]))
-                console.log("here are the unique values in the bins table: ",binOptions)
+                setBinOptions( results as Bin[])
+                console.log("here are the unique values in the bins table: ",results)
            
         }catch(e){
             console.log("error loading bin data", e)
@@ -84,6 +142,58 @@ const [inputBin, setInputBin] = useState('');
    useEffect(()=>{
         loadBinList();
     }, [])
+//on bin title press, set that bin to selected bin
+function handleRItemPress(item: Bin){
+  setSelectedBin(item);
+  setValue('binId', item.id)
+  setIsDropdownVisible(false);
+
+}
+    //this is how each bin in the bin options should be shown on the screen
+    const rItem = ({item}: {item : Bin}) =>{
+      //on bin title press, set that bin to selected bin
+      return(
+        <Pressable onPress={()=>handleRItemPress(item)} style={styles.dropdownItem}>
+        <Text>
+          {item.title}
+          </Text>
+      </Pressable>
+
+      )
+      
+    }
+
+    //toggle the dropdown
+    function toggleDropdown (){
+      setIsDropdownVisible(prev => !prev);
+    }
+
+    //show the dropdown on dropdown preview button press
+    function handleDropdown (){
+      if(isDropdownVisible){
+        return(
+          <Modal visible={isDropdownVisible} transparent>
+            <Pressable 
+            style={styles.overlay}
+            onPress={()=>setIsDropdownVisible(false)}>
+            <SafeAreaView style={styles.dropdownContainer}>
+              <FlatList
+              data={binOptions}
+              renderItem={rItem}
+              keyExtractor ={(item)=> item.id.toString()}
+               ListFooterComponent={
+              <Pressable onPress={handleNewBinButtonPress}>
+               <Text>+ Add New Bin</Text>
+               </Pressable>
+  }/>
+              
+            </SafeAreaView>
+            </Pressable>
+
+          </Modal>
+        )
+      }
+    }
 
     //handle add new bin button press 
     function handleNewBinButtonPress(){
@@ -100,6 +210,12 @@ const [inputBin, setInputBin] = useState('');
       try{
         await db.runAsync('INSERT INTO bins (title) VALUES(?)',[inputBin]);
            console.log('a new bin named: ', inputBin ,'was added');
+           //reload the bin list
+           await loadBinList();
+           // reset bin input
+           setInputBin('')
+           // close the add new bin modal
+           setIsModalVisible(false);
 
       }catch(e){
          console.log('error logging new bin into database', e)
@@ -108,13 +224,41 @@ const [inputBin, setInputBin] = useState('');
     
     }
 
+    //handle press for selected weight
+    function handleWeightPress(item: Weight){
+  setValue('weight', item.name);
+  setSelectedWeight(item);
+ 
+
+}
+//debug for presshandler
+/*
+ useEffect(()=>{
+        console.log("selected weight: ")
+    }, [handleWeightPress]);
+*/
+    //custom weights input component
+    function inputWeights(){
+      return(
+        <>
+         {weights.map((item : Weight) =>
+          <Pressable key={item.id} onPress={()=> handleWeightPress(item)}>
+          <Image
+          source= {item.image}
+          style={[styles.weightImage, selectedWeight.id === item.id && styles.selectedWeightImage]}/>
+          </Pressable>
+        )}
+        </>
+       
+      )
+    }
   //on submit log the data to thre console
   const onSubmit: SubmitHandler<Inputs> = async(data) => {
     try{
        await db.runAsync(
         //add data to master yarn table ADJUST BIN DATA
     'INSERT INTO master (binId, image, yarnName, brandName, color, weight, fiber, skeins) VALUES (?,?,?,?,?,?,?,?)',
-    [data.binId || 'Default Bin', data.image || '', data.yarnName, data.brandName, data.color, Number(data.weight), data.fiber, Number(data.skeins)]
+    [Number(data.binId), data.image || '', data.yarnName, data.brandName, data.color, data.weight, data.fiber, Number(data.skeins)]
    );
    
    
@@ -139,7 +283,10 @@ const [inputBin, setInputBin] = useState('');
       Alert.alert('modal has been closed.');
       setIsModalVisible(false);
     }}>
-      <SafeAreaView>
+      <Pressable 
+      style={styles.overlay}
+      onPress={()=>setIsModalVisible(false)}>
+      <SafeAreaView style={styles.modalContentContainer}>
         <Text>Please Input New Bin Name:</Text>
           
           <TextInput
@@ -156,19 +303,19 @@ const [inputBin, setInputBin] = useState('');
         </Pressable>
        
       </SafeAreaView>
-      
+      </Pressable>
 
     </Modal>
 
   
     <ScrollView >
-    
-   
+      
+    <Pressable
+    onPress={toggleDropdown}>
+{handleDropdown()}
+<Text>{selectedBin && selectedBin.title || `▾ Show Dropdown` }</Text>
 
-   
-         <Button title="+" onPress={handleNewBinButtonPress}>
-
-    </Button>
+    </Pressable>
 
       <View style={styles.imageContainer}>
         <Button title="choose an image from camera roll" onPress={pickImage}/>
@@ -237,25 +384,10 @@ const [inputBin, setInputBin] = useState('');
 
 <View style={styles.controllerGroup}>
         <Text>Yarn Weight</Text>
- <Controller
-        control={control}
-        rules={{
-          required: true,
-        }}
-        render={({ field: { onChange, value } }) => (
-          <TextInput
-          style={styles.input}
-            placeholder="Yarn Weight"
-              placeholderTextColor="#999999"
-            inputMode='numeric'
-            keyboardType='numeric'
-            
-            onChangeText={onChange}
-            value={value}
-          />
-        )}
-        name="weight"
-      />
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+    {inputWeights()}
+  </View>
+     
       </View>
 
 <View style={styles.controllerGroup}>
@@ -298,11 +430,11 @@ const [inputBin, setInputBin] = useState('');
         name="skeins"
       />
 
-       {/*error handling*/}
+       {/*error handling TO DO:change span to text*/}
+       
         {errors.yarnName && <span>This field is required</span>}
          {errors.brandName && <span>This field is required</span>}
           {errors.color&& <span>This field is required</span>}
-           {errors.weight && <span>This field is required</span>}
             {errors.fiber && <span>This field is required</span>}
              {errors.skeins && <span>This field is required</span>}
         <Button title="Submit" onPress={handleSubmit(onSubmit)}/>
@@ -337,6 +469,48 @@ const styles = StyleSheet.create({
   image:{
     width: 200,
     height: 200
-  }
+  },
+  overlay:{
+    width: '100%',
+    height: '100%'
+  },
+  modalContentContainer: {
+backgroundColor: '#FFFFFF',
+  margin: 24,
+  padding: 20,
+  borderRadius: 12,
+  shadowColor: '#000',
+  shadowOpacity: 0.2,
+  shadowRadius: 8,
+  elevation: 5,
+  },
+  dropdownContainer:{
+    backgroundColor: '#FFFFFF',
+  marginTop: 80,
+  marginHorizontal: 24,
+  padding: 16,
+  borderRadius: 12,
+  maxHeight: '70%',
+  elevation: 5,
+
+  },
+  dropdownItem: {
+  paddingVertical: 14,
+  borderBottomWidth: 1,
+  borderBottomColor: '#E5E5E5',
+},
+weightImage:{
+  width: 60,
+  height: 60,
+  margin: 4,
+  opacity: 0.65
+},
+selectedWeightImage: {
+ borderWidth: 3,
+  borderColor: '#5B8C5A',
+  borderRadius: 8,
+  opacity: 1,
+}
+
  
 });
