@@ -4,7 +4,9 @@ import { useSQLiteContext } from 'expo-sqlite';
 import * as ImagePicker from 'expo-image-picker';
 import {useState, useEffect} from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import {Link, useRouter, Tabs} from 'expo-router';
 
+import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 // add the data from the yarn form to the inventory json file
 //fetch data from json file and sort them into bins
 type Inputs ={
@@ -13,6 +15,7 @@ type Inputs ={
   yarnName: string
   brandName: string
   color: string
+  colorWay: string
   weight: string
   fiber: string
   skeins: string
@@ -91,6 +94,11 @@ const [selectedWeight, setSelectedWeight] = useState<Weight>(weights[0]);
   //use state for the image picker
   const [image, setImage] = useState<string>('');
 
+// camera variables
+      const [permission, requestPermission] = useCameraPermissions();
+    
+
+const router = useRouter();
   const pickImage = async()=>{
     //request user permission to access photo library
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -231,12 +239,7 @@ function handleRItemPress(item: Bin){
  
 
 }
-//debug for presshandler
-/*
- useEffect(()=>{
-        console.log("selected weight: ")
-    }, [handleWeightPress]);
-*/
+
     //custom weights input component
     function inputWeights(){
       return(
@@ -257,8 +260,8 @@ function handleRItemPress(item: Bin){
     try{
        await db.runAsync(
         //add data to master yarn table ADJUST BIN DATA
-    'INSERT INTO master (binId, image, yarnName, brandName, color, weight, fiber, skeins) VALUES (?,?,?,?,?,?,?,?)',
-    [Number(data.binId), data.image || '', data.yarnName, data.brandName, data.color, data.weight, data.fiber, Number(data.skeins)]
+    'INSERT INTO master (binId, image, yarnName, brandName, color, colorWay, weight, fiber, skeins) VALUES (?,?,?,?,?,?,?,?,?)',
+    [Number(data.binId), data.image || '', data.yarnName, data.brandName, data.color, data.colorWay, data.weight, data.fiber, Number(data.skeins)]
    );
    
    
@@ -271,6 +274,21 @@ function handleRItemPress(item: Bin){
   
   };
  
+
+    // camera permissions are still loading
+    if(!permission){
+        return <View/>
+    }
+
+    // camera permissions not granted => ask for permission
+    if(!permission.granted){
+        return(
+            <View >
+        <Text>We need your permission to show the camera</Text>
+        <Button onPress={requestPermission} title="Request permission" />
+      </View>
+        );
+    }
 
  
   return (
@@ -382,6 +400,26 @@ function handleRItemPress(item: Bin){
       />
      </View>
 
+     <View style={styles.controllerGroup}>
+        <Text>Color Way</Text>
+      <Controller
+        control={control}
+        rules={{
+          required: true,
+        }}
+        render={({ field: { onChange, value } }) => (
+          <TextInput
+          style={styles.input}
+            placeholder="color way"
+              placeholderTextColor="#999999"
+            onChangeText={onChange}
+            value={value}
+          />
+        )}
+        name="colorWay"
+      />
+     </View>
+
 <View style={styles.controllerGroup}>
         <Text>Yarn Weight</Text>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
@@ -437,8 +475,15 @@ function handleRItemPress(item: Bin){
           {errors.color&& <span>This field is required</span>}
             {errors.fiber && <span>This field is required</span>}
              {errors.skeins && <span>This field is required</span>}
+
         <Button title="Submit" onPress={handleSubmit(onSubmit)}/>
 
+<Pressable
+  disabled={!permission?.granted}
+  onPress={() => router.push('/upcscan')}
+>
+  <Text>Scan Code</Text>
+</Pressable>
      
     </ScrollView>
       </SafeAreaView>

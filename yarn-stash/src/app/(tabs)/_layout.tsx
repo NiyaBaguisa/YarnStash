@@ -3,18 +3,17 @@ import { SQLiteProvider } from 'expo-sqlite';
 import { View, Alert, Modal, TouchableOpacity, Text, StyleSheet, Pressable, TextInput} from 'react-native';
 import { useState, useEffect, use } from 'react';
 
-
 interface Yarn{
   id: number;
-  bin: string;
+  binId: number;
   image: any;
   yarnName: string;
   brandName: string;
   color: string;
+  colorway: string;
   weight: number;
   fiber: string;
   skeins: number;
- 
 };
 
 
@@ -32,7 +31,7 @@ export default function TabLayout() {
      
       onInit={async (db) => {
          // wipe the old table entirely — we're changing bin's type, not just its name
-  //await db.execAsync(`DROP TABLE IF EXISTS master;`);
+ // await db.execAsync(`DROP TABLE IF EXISTS master;`);
   
 
         await db.execAsync(`
@@ -43,6 +42,7 @@ export default function TabLayout() {
                 yarnName TEXT NOT NULL,
                 brandName TEXT NOT NULL,
                 color TEXT NOT NULL,
+                colorWay TEXT DEFAULT '',
                 weight INTEGER NOT NULL,
                 fiber TEXT NOT NULL,
                 skeins INTEGER NOT NULL
@@ -64,7 +64,7 @@ export default function TabLayout() {
   // note: SQLite requires a DEFAULT when adding a NOT NULL column to a
   // table that may already have rows, so these all specify one
   const requiredColumns: { name: string; ddl: string }[] = [
-    { name: 'bin', ddl: `bin TEXT DEFAULT 'Default Bin'` },
+    { name: 'binId', ddl: `bin INTEGER DEFAULT 0` },
     { name: 'image', ddl: `image TEXT DEFAULT ''` },
     { name: 'color', ddl: `color TEXT DEFAULT ''` },
     { name: 'weight', ddl: `weight INTEGER DEFAULT 0` },
@@ -76,8 +76,9 @@ export default function TabLayout() {
     if (!existingNames.has(col.name)) {
       await db.execAsync(`ALTER TABLE master ADD COLUMN ${col.ddl};`);
     }
-  }
 
+  }
+ 
   //bins table 
    await db.execAsync(`
                 CREATE TABLE IF NOT EXISTS bins (
@@ -108,7 +109,13 @@ export default function TabLayout() {
         options={{
           href: null, // Hides it from the tab menu
         }}/>
-      
+
+      <Tabs.Screen 
+        name="upcscan" 
+        options={{
+          href: null, // Hides it from the tab menu
+        }}/>
+        
       
 
       <Tabs.Screen

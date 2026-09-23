@@ -3,15 +3,17 @@ import {useState, useEffect} from 'react';
 import YarnThumbnail from "@/components/YarnThumbnail";
 import { useSQLiteContext } from "expo-sqlite";
 import { SafeAreaView } from 'react-native-safe-area-context';
+import YarnDetails from './YarnDetails';
 
 // type for yarn object
 interface Yarn{
     id: number;
-    bin: string;
+    binId: number;
     image: string
   yarnName: string;
   brandName: string;
  color: string;
+ colorWay: string;
  weight: string;
   fiber: string;
  skeins: number;
@@ -34,8 +36,9 @@ interface ExpandedViewProps{
 
 export default function BinExpandedView({pressedBin, setPressedBin, isBinSelected, setIsBinSelected }: ExpandedViewProps) {
 //conditional rendering , false for list view, true for yarn detailed view
-const [isYarnSelected , setIsYarnSelected] = useState<boolean>();
-
+const [isYarnSelected , setIsYarnSelected] = useState<boolean>(false);
+//data for selected yarn held in this state
+const [selectedYarn, setSelectedYarn] = useState<Yarn>();
 // state for this bin's content
  const [currentBinList, setCurrentBinList] = useState<Yarn[]>([])
  const db =useSQLiteContext();
@@ -62,19 +65,22 @@ const [isYarnSelected , setIsYarnSelected] = useState<boolean>();
     }
     return(
         <SafeAreaView>
+          
            <View>
+            {isYarnSelected? <YarnDetails isYarnSelected={isYarnSelected} setIsYarnSelected={setIsYarnSelected} selectedYarn={selectedYarn} setSelectedYarn={setSelectedYarn} /> : 
+             <>
+             <View>
             <Pressable onPress={handleBack}>
                <Text>Back Button</Text>
             </Pressable>
 
            </View>
-           <View>
              <FlatList
              data={currentBinList}
              keyExtractor={(item)=> item.id.toString()}
                      renderItem={({item})=>(
-                         <YarnThumbnail{...item}/>)}/>
-
+                         <YarnThumbnail item ={item} isYarnSelected={isYarnSelected} setIsYarnSelected={setIsYarnSelected} selectedYarn={selectedYarn} setSelectedYarn={setSelectedYarn}/>)}/>
+</>}
            </View>
             
         </SafeAreaView>

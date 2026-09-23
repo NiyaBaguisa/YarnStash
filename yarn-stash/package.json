@@ -5,7 +5,9 @@
   "dependencies": {
     "@expo/ui": "~56.0.26",
     "@react-native-picker/picker": "2.11.4",
+    "dotenv": "^18.0.3",
     "expo": "~56.0.18",
+    "expo-camera": "~56.0.8",
     "expo-constants": "~56.0.18",
     "expo-dev-client": "~56.0.24",
     "expo-device": "~56.0.4",

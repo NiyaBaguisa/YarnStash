@@ -4,11 +4,12 @@ import { Text, View,Image,  StyleSheet } from "react-native";
 // type for yarn object
 interface Yarn{
     id: number;
-    bin: string;
+    binId: number;
     image: string
   yarnName: string;
   brandName: string;
  color: string;
+ colorWay: string;
  weight: string;
   fiber: string;
  skeins: number;

@@ -4,24 +4,42 @@ import { Text, View,Image, Pressable, StyleSheet } from "react-native";
 // type for yarn object
 interface Yarn{
     id: number;
-    bin: string;
+    binId: number;
     image: string
   yarnName: string;
   brandName: string;
  color: string;
+ colorWay: string;
  weight: string;
   fiber: string;
  skeins: number;
  
 }
 
+interface YarnThumbnailProps{
+  item : Yarn,
+   isYarnSelected: boolean,
+    setIsYarnSelected: (value: boolean)=>void,
+  selectedYarn?: Yarn,
+  setSelectedYarn: (item: Yarn | undefined) => void,
+  
 
-export default function YarnThumbnail(item: Yarn){
+}
+
+export default function YarnThumbnail({item, isYarnSelected, setIsYarnSelected, selectedYarn, setSelectedYarn}: YarnThumbnailProps){
 
   const weights: string[] = ['Lace', 'Super Fine', 'Fine', 'Light', 'Medium', 'Bulky', 'Super Bulky', 'Jumbo'];
   const weightDisplay = `${item.weight} ${weights.indexOf(item.weight)}`
-    return(
-      <Pressable>
+    //when thumbnail is pressed pass up the state
+  function handlePress(){
+    setSelectedYarn(item);
+    setIsYarnSelected(true);
+
+
+  };
+  
+  return(
+      <Pressable onPress={handlePress}>
 
      
         <View style={styles.thumbnailContainer}>

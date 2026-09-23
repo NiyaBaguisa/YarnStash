@@ -6,11 +6,12 @@ import { useEffect, useState } from "react";
 
 interface Yarn{
   id: number;
-  bin: string;
+  binId: number;
   image: any;
   yarnName: string;
   brandName: string;
   color: string;
+  colorWay: string;
   weight: string;
   fiber: string;
   skeins: number;
