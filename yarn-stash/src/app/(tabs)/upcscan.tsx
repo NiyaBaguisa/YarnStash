@@ -3,10 +3,10 @@ import { TextInput, View, ScrollView, Modal,Pressable, StyleSheet, Button, Text,
 import {useState, useEffect, useCallback} from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import TopMatches from '@/components/TopMatches';
 import ConfirmModal from '@/components/ConfirmModal';
-require("dotenv").config();
+import { useScannedYarnDataContext, ScannedYarnData } from '@/useContext/context';
 /*
 1. open camera view
 2. scan code => reurn code type and number
@@ -19,16 +19,7 @@ require("dotenv").config();
 8. user confirms => send data to the yarn form
 */
 
-//scanned yarn object
-type ScannedYarn ={
-  image: string,
-  yarnName: string,
-  brandName: string,
-  color: string,
-  colorWay: string,
-  weight: number,
-  fiber: string[];
-}
+
 
 // define what a search result yarn looks like
 type RavelrySearchResult = {
@@ -54,10 +45,10 @@ const [visible, setIsVisible] = useState(false);
     const [isScanned, setIsScanned] = useState<Boolean>(false);
 // store scanned result code number
 const [code, setCode] = useState("");
-//store colorway value
-const [parsedColorway, setParsedColorway] =useState<string>("");
+//store colorway
+const [parsedColorway, setParsedColorway] = useState("")
 //store scanned result upc data !! NOT THE SAME AS THE FINAL SCANNED YARN DATA
-const [upcItem, setupcItem] = useState<ScannedYarn>()
+const [upcItem, setupcItem] = useState<ScannedYarnData>()
 // top matches for user to confirm and choose from 
 const [topMatches, setTopMatches] = useState<RavelrySearchResult[]>([]);
 
@@ -84,8 +75,8 @@ const colors = [
 const fillerWords = ['yarn', 'solid', 'solids', 'skein', 'ball', 'multi', 'variegated', 'variety'];
 
 //RAVELRY CREDENTIALS
-const apiusername = process.env.username
-const apipassword = process.env.password;
+const apiusername = process.env.EXPO_PUBLIC_username
+const apipassword = process.env.EXPO_PUBLIC_password;
 const encoded = btoa(`${apiusername}:${apipassword}`);
 
 //Reset everything when the screen comes into focus
@@ -98,8 +89,10 @@ useFocusEffect(
     setCode("");
     setupcItem(undefined);
     setTopMatches([]);
+  
     return () => {
       // Do something when the screen is unfocused
+     
     };
   }, [])
 );
@@ -178,6 +171,9 @@ return data;
 
 
 async function queryColorway( searched: RavelrySearchResult, ravelryName: string){
+  if (!searched){
+    return;
+  }
   try{ 
     // get the coloway arr from the queried id
     const colorwayArr = searched.colorways;
@@ -217,16 +213,26 @@ async function fetchYarn(){
     const response = await fetch(`https://api.upcitemdb.com/prod/trial/lookup?upc=${code}`);
     //parse json
     const result = await response.json();
-    const item = result.items[0];
+    
+    const item = result.items?.[0];
+        if (!item) {
+      console.log("No product found for UPC:", code, result);
+      Alert.alert("Not found", "That barcode isn't in the database. Try another or add it manually.");
+      setIsScanned(false); // let the camera scan again
+      return;
+    }
+
 console.log(item)
     const scannedItem= {
-      "image": item.images[0], 
+      "binId": 0,
+      "image": item.images[0]?? "", 
       "yarnName": item.title, 
   "brandName": item.brand, 
   "color": item.color, 
-  "colorWay" : parsedColorway, 
-  "weight": 0,
-  "fiber": [] 
+  "colorWay" : "", 
+  "weight": "0",
+  "fiber": [],
+  "skeins": "1", 
 
     }
     setupcItem(scannedItem);
@@ -404,7 +410,7 @@ function parseColorway (title:string, brand :string, ravelryName: string){
             barcodeScannerSettings={{barcodeTypes:['upc_e', 'upc_a', 'ean13', 'ean8']}}
             onBarcodeScanned={isScanned? undefined: handleScan}/>
            
-         <TopMatches visible={visible} onClose={()=>setIsVisible(false)} matches={topMatches} upcItem ={upcItem}/> 
+         <TopMatches visible={visible} onClose={()=>setIsVisible(false)} matches={topMatches} upcItem ={upcItem} parsedColorway={parsedColorway}/> 
         </SafeAreaView>
     )
 

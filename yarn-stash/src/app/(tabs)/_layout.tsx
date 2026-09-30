@@ -2,7 +2,7 @@ import { Tabs, useRouter } from 'expo-router';
 import { SQLiteProvider } from 'expo-sqlite';
 import { View, Alert, Modal, TouchableOpacity, Text, StyleSheet, Pressable, TextInput} from 'react-native';
 import { useState, useEffect, use } from 'react';
-
+import { YarnContext, ScannedYarnData, defaultData } from '@/useContext/context';
 interface Yarn{
   id: number;
   binId: number;
@@ -13,12 +13,22 @@ interface Yarn{
   colorway: string;
   weight: number;
   fiber: string;
-  skeins: number;
+  skeins: string;
 };
 
 
 
 export default function TabLayout() {
+const [scannedYarnData, setScannedYarnData] = useState<ScannedYarnData>(defaultData);
+console.log("LAYOUT render");
+// updates data in setter
+const updateScannedYarn = (patch: Partial<ScannedYarnData>) =>{
+console.log("LAYOUT: update called with", patch);
+    setScannedYarnData((prev) => ({ ...prev, ...patch }));
+}
+  
+
+  const resetScannedYarn = () => setScannedYarnData(defaultData);
 
   const router = useRouter();
 
@@ -98,11 +108,13 @@ export default function TabLayout() {
       
       //keep one stable connection
       options={{ useNewConnection: false }}>
-
-      <Tabs screenOptions={{ headerShown: false }}>
+<YarnContext.Provider value={{scannedYarnData, updateScannedYarn, resetScannedYarn}}>
+      <Tabs screenOptions={{ headerShown: false, freezeOnBlur: false }}>
         <Tabs.Screen 
         name="index" 
         options={{ title: 'Home' }} />
+
+
 
         <Tabs.Screen 
         name="addYarn" 
@@ -135,8 +147,7 @@ export default function TabLayout() {
 
 
       </Tabs>
-
-      
+     </YarnContext.Provider> 
 
     </SQLiteProvider>
 

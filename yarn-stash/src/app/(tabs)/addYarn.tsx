@@ -2,11 +2,12 @@ import { TextInput, View, ScrollView, Modal,Pressable, StyleSheet, Button, Text,
 import {useForm, SubmitHandler, Controller} from "react-hook-form";
 import { useSQLiteContext } from 'expo-sqlite';
 import * as ImagePicker from 'expo-image-picker';
-import {useState, useEffect} from 'react';
+import {useState, useEffect, useContext, useCallback} from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import {Link, useRouter, Tabs} from 'expo-router';
+import {Link, useRouter, Tabs, useFocusEffect} from 'expo-router';
 
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
+import { useScannedYarnDataContext, ScannedYarnData } from '@/useContext/context';
 // add the data from the yarn form to the inventory json file
 //fetch data from json file and sort them into bins
 type Inputs ={
@@ -33,6 +34,9 @@ type Weight ={
   image: ImageSourcePropType,
 }
 export default function AddYarn() {
+//destructure context
+const {scannedYarnData, updateScannedYarn, resetScannedYarn} = useScannedYarnDataContext();
+console.log("ADDYARN render, yarnName =", scannedYarnData.yarnName);
 // arr of bin options
 const [binOptions, setBinOptions] = useState<Bin[]>([]);
 //use state for the bin dropdown
@@ -99,6 +103,9 @@ const [selectedWeight, setSelectedWeight] = useState<Weight>(weights[0]);
     
 
 const router = useRouter();
+
+
+
   const pickImage = async()=>{
     //request user permission to access photo library
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -255,6 +262,8 @@ function handleRItemPress(item: Bin){
        
       )
     }
+
+    
   //on submit log the data to thre console
   const onSubmit: SubmitHandler<Inputs> = async(data) => {
     try{
@@ -274,8 +283,36 @@ function handleRItemPress(item: Bin){
   
   };
  
+//import data from context
 
-    // camera permissions are still loading
+
+  useEffect(() => {
+    console.log("ADDYARN focused, context yarnName =", scannedYarnData.yarnName);
+    if (!scannedYarnData.yarnName && !scannedYarnData.brandName) return;
+reset({
+  binId: 0,
+  //image: scannedYarnData.image,
+  yarnName: scannedYarnData.yarnName,
+  brandName: scannedYarnData.brandName,
+  color: scannedYarnData.color,
+  colorWay: scannedYarnData.colorWay,
+  //weight: scannedYarnData.weight,
+  //fiber: [],
+  skeins: scannedYarnData.skeins,
+
+
+  
+})/*
+    setValue('yarnName', scannedYarnData.yarnName);
+    setValue('brandName', scannedYarnData.brandName);
+    setValue('color', scannedYarnData.color);
+    setValue('colorWay', scannedYarnData.colorWay);
+    setValue('fiber', scannedYarnData.fiber.join(', '));
+    setValue('image', scannedYarnData.image);
+    setImage(scannedYarnData.image);
+*/
+  }, [scannedYarnData])
+
     if(!permission){
         return <View/>
     }
@@ -484,6 +521,7 @@ function handleRItemPress(item: Bin){
 >
   <Text>Scan Code</Text>
 </Pressable>
+
      
     </ScrollView>
       </SafeAreaView>

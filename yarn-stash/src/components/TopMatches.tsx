@@ -2,8 +2,9 @@ import {Modal, Button, Pressable, View, Image, Text, TouchableOpacity, Animated,
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useEffect, useState } from 'react';// define what a search result yarn looks like
+import { useScannedYarnDataContext, ScannedYarnData } from '@/useContext/context';
 
-//TO DO: TAKE IN THE UPC DATA AS WELL FOR THE IMAGE, BRAND, COLOR
+//TO DO: lift state up to upc scan, then up to add yarn form
 type RavelrySearchResult = {
   id: number;
   name: string;
@@ -16,63 +17,51 @@ type Fiber ={
   [key: string] : any;
 }
 
-//scanned yarn object
-type ScannedYarn ={
-  image: string,
-  yarnName: string,
-  brandName: string,
-  color: string,
-  colorWay: string,
-  weight: number,
-  fiber: string[];
-}
+
 
 type TopMatchesProps = {
   visible: boolean;
   onClose: () => void;
   matches: RavelrySearchResult[];
-  upcItem?: ScannedYarn;
+  upcItem?: ScannedYarnData;
+  parsedColorway: string;
 };
-export default function TopMatches({ visible, onClose, matches, upcItem }: TopMatchesProps){
-
+export default function TopMatches({ visible, onClose, matches, upcItem, parsedColorway }: TopMatchesProps){
+//filled in data for the form
+const {updateScannedYarn} = useScannedYarnDataContext();
+ const router = useRouter();
 
   // the final yarn data to be passed to the form
-const [yarnData, setYarnData] = useState<ScannedYarn>();
+const [yarnData, setYarnData] = useState<ScannedYarnData>();
    
 useEffect(() => {
   console.log("This is the data passed to the modal: ", matches);
   console.log("this is the scanned item: ", upcItem);
-}, [matches, upcItem]);
-
-  //loop through matches and add in new data from upc scan to each item
-  // new array that holds the combined values from both the upcitem and from the match
-
-//loop through best matches and show fiber content
-    //get the fiber content from the queried id
-
-
-
-function confirmResult(){       
-       // setYarnData(confirmedData)
-        // TO DO: close camera view,send the query data to the add yarn form
-        //reset isScanned back to false
+}, [matches, upcItem]);   
       
-}
 function handlechosen(item: RavelrySearchResult){
+  console.log("TOPMATCHES: handlechosen fired", item.name)
   //combine the data from the chosen match with the upc scan data
   //loop through fiber array and pull out the names of each 
   const fiberArr = item.fiber.map((f : Fiber)=> f.fiber_category.name);
-console.log('item.fiber: ',item.fiber[0].fiber_category.name)
+//console.log('item.fiber: ',item.fiber[0].fiber_category.name)
      const confirmedData={
+      "binId": 0,
           "image": upcItem?.image || item.first_photo?.square_url || '', //upc
-      "yarnName": item.name, //Ravelry
-  "brandName":item.yarn_company_name, //upc if null then raveley (maybe)
+      "yarnName": item.name || '', //Ravelry
+  "brandName":item.yarn_company_name || '', //upc if null then raveley (maybe)
   "color": upcItem?.color || '', // upc
-  "colorWay" : upcItem?.colorWay || '', //upc+ ravelry
-  "weight": item.gauge_divisor || 0, // ravelry
-  "fiber": fiberArr //ravelry
+  "colorWay" : parsedColorway || '', //upc+ ravelry
+  "weight": String(item.gauge_divisor) || "0", // ravelry
+  "fiber": fiberArr || [], //ravelry,
+  'skeins': "1",
         }
 setYarnData(confirmedData)
+updateScannedYarn(confirmedData);
+//close modal
+onClose();
+router.push('/(tabs)/addYarn')
+        
 
 }
 
