@@ -1,15 +1,13 @@
 import { TextInput, View, ScrollView, Modal,Pressable, StyleSheet, Button, Text, Image, Alert, FlatList, ImageSourcePropType } from 'react-native';
 import {useForm, SubmitHandler, Controller} from "react-hook-form";
-import { useSQLiteContext } from 'expo-sqlite';
 import * as ImagePicker from 'expo-image-picker';
-import {useState, useEffect, useContext, useCallback} from 'react';
+import {useState, useEffect, useMemo, useCallback} from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import {Link, useRouter, Tabs, useFocusEffect} from 'expo-router';
-
+import {Link, useRouter, Tabs, useFocusEffect, useLocalSearchParams} from 'expo-router';
+import { useSQLiteContext } from 'expo-sqlite';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
-import { useScannedYarnDataContext, ScannedYarnData } from '@/useContext/context';
-// add the data from the yarn form to the inventory json file
-//fetch data from json file and sort them into bins
+import ChipInput from '@/components/ChipInput';
+
 type Inputs ={
   binId: number
   image: string
@@ -18,7 +16,7 @@ type Inputs ={
   color: string
   colorWay: string
   weight: string
-  fiber: string
+  fiber: string[]
   skeins: string
   
 }
@@ -33,10 +31,18 @@ type Weight ={
   name: string,
   image: ImageSourcePropType,
 }
+export interface ScannedYarnData {
+  binId: number;
+  image: string;
+  yarnName: string;
+  brandName: string;
+  color: string;
+  colorWay: string;
+  weight: string;
+  fiber: string[];
+  skeins: string;
+}
 export default function AddYarn() {
-//destructure context
-const {scannedYarnData, updateScannedYarn, resetScannedYarn} = useScannedYarnDataContext();
-console.log("ADDYARN render, yarnName =", scannedYarnData.yarnName);
 // arr of bin options
 const [binOptions, setBinOptions] = useState<Bin[]>([]);
 //use state for the bin dropdown
@@ -47,7 +53,6 @@ const [isModalVisible, setIsModalVisible] = useState(false);
 const [inputBin, setInputBin] = useState('');
 //state for bin dropdown
 const [isDropdownVisible, setIsDropdownVisible] = useState(false);
-
 // data for weight input
 const weights: Weight[] =[
    {
@@ -91,20 +96,38 @@ const weights: Weight[] =[
     image: require('@/assets/images/weightImages/Weight-7-Jumbo.jpg'),
   },
 ];
-
 //state for selected weight
 const [selectedWeight, setSelectedWeight] = useState<Weight>(weights[0]);
-
-  //use state for the image picker
+//fiber arr chips created
+    const [chips, setChips]= useState<string[]>([]); 
+//use state for the image picker
   const [image, setImage] = useState<string>('');
-
 // camera variables
       const [permission, requestPermission] = useCameraPermissions();
-    
-
+//empty form values
+const emptyForm: Inputs = {
+  binId: 1, image: '', yarnName: '', brandName: '', color: '',
+  colorWay: '', weight: '', fiber: [], skeins: '1',
+};
 const router = useRouter();
 
-
+   // parameters inherited from topMatches
+ const {scannedYarn} = useLocalSearchParams<{scannedYarn:string}>(); 
+ //parse the scannedYarn JSON string
+ const parsedScannedYarn = useMemo(()=>{
+  //scannedyarn is falsy return 
+  if(!scannedYarn){return;}
+    try{
+return JSON.parse(scannedYarn) as ScannedYarnData;
+    }catch(e){
+      console.error("Failed to parse scanned yarn params data", e);
+    } 
+    //if the scanned yarn canot be parsed return empy form
+    if(!parsedScannedYarn){
+      return emptyForm;
+    }
+  
+ },[scannedYarn]);
 
   const pickImage = async()=>{
     //request user permission to access photo library
@@ -270,7 +293,7 @@ function handleRItemPress(item: Bin){
        await db.runAsync(
         //add data to master yarn table ADJUST BIN DATA
     'INSERT INTO master (binId, image, yarnName, brandName, color, colorWay, weight, fiber, skeins) VALUES (?,?,?,?,?,?,?,?,?)',
-    [Number(data.binId), data.image || '', data.yarnName, data.brandName, data.color, data.colorWay, data.weight, data.fiber, Number(data.skeins)]
+    [Number(data.binId), data.image || '', data.yarnName, data.brandName, data.color, data.colorWay, data.weight, JSON.stringify(data.fiber), Number(data.skeins)]
    );
    
    
@@ -283,35 +306,44 @@ function handleRItemPress(item: Bin){
   
   };
  
-//import data from context
-
+//import data from search params to form fields
 
   useEffect(() => {
-    console.log("ADDYARN focused, context yarnName =", scannedYarnData.yarnName);
-    if (!scannedYarnData.yarnName && !scannedYarnData.brandName) return;
+    console.log("ADDYARN focused, context yarnName =", parsedScannedYarn?.yarnName || "Yarn Name");
+
+    //weight conversion
+    const scannedWeight = weights.find(
+  (w) =>
+    w.id === Number(parsedScannedYarn?.weight) ||
+    w.name === parsedScannedYarn?.weight
+);
+
+// set the fiber chips 
+if(parsedScannedYarn){
+  setChips(parsedScannedYarn.fiber)
+
+}
+
 reset({
   binId: 0,
-  //image: scannedYarnData.image,
-  yarnName: scannedYarnData.yarnName,
-  brandName: scannedYarnData.brandName,
-  color: scannedYarnData.color,
-  colorWay: scannedYarnData.colorWay,
-  //weight: scannedYarnData.weight,
-  //fiber: [],
-  skeins: scannedYarnData.skeins,
+  image: parsedScannedYarn?.image,
+  yarnName: parsedScannedYarn?.yarnName,
+  brandName: parsedScannedYarn?.brandName,
+  color: parsedScannedYarn?.color,
+  colorWay: parsedScannedYarn?.colorWay,
+ weight: scannedWeight?.name ?? '',
+  fiber: parsedScannedYarn?.fiber,
+  skeins: parsedScannedYarn?.skeins, 
+})
+if(scannedWeight){
+  setSelectedWeight(scannedWeight)
+}
+}, [parsedScannedYarn])
 
-
-  
-})/*
-    setValue('yarnName', scannedYarnData.yarnName);
-    setValue('brandName', scannedYarnData.brandName);
-    setValue('color', scannedYarnData.color);
-    setValue('colorWay', scannedYarnData.colorWay);
-    setValue('fiber', scannedYarnData.fiber.join(', '));
-    setValue('image', scannedYarnData.image);
-    setImage(scannedYarnData.image);
-*/
-  }, [scannedYarnData])
+  useEffect(()=>{
+     setValue('fiber', chips);
+        console.log("current fiber list: ", chips);
+    }, [chips])
 
     if(!permission){
         return <View/>
@@ -466,24 +498,11 @@ reset({
       </View>
 
 <View style={styles.controllerGroup}>
-        <Text>Yarn Fiber Content</Text>
-      <Controller
-        control={control}
-        rules={{
-          required: true,
-        }}
-        render={({ field: { onChange, value } }) => (
-          <TextInput
-          style={styles.input}
-            placeholder="Fiber"
-              placeholderTextColor="#999999"
-            onChangeText={onChange}
-            value={value}
-          />
-        )}
-        name="fiber"
-      />
+
+      <ChipInput chips ={chips} setChips={setChips}/>
       </View>
+      
+
 
   <Controller
         control={control}

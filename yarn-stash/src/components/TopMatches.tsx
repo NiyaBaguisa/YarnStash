@@ -2,7 +2,7 @@ import {Modal, Button, Pressable, View, Image, Text, TouchableOpacity, Animated,
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useEffect, useState } from 'react';// define what a search result yarn looks like
-import { useScannedYarnDataContext, ScannedYarnData } from '@/useContext/context';
+//import { useScannedYarnDataContext, ScannedYarnData } from '@/useContext/context';
 
 //TO DO: lift state up to upc scan, then up to add yarn form
 type RavelrySearchResult = {
@@ -17,7 +17,17 @@ type Fiber ={
   [key: string] : any;
 }
 
-
+interface ScannedYarnData {
+  binId: number;
+  image: string;
+  yarnName: string;
+  brandName: string;
+  color: string;
+  colorWay: string;
+  weight: string;
+  fiber: string[];
+  skeins: string;
+}
 
 type TopMatchesProps = {
   visible: boolean;
@@ -28,7 +38,7 @@ type TopMatchesProps = {
 };
 export default function TopMatches({ visible, onClose, matches, upcItem, parsedColorway }: TopMatchesProps){
 //filled in data for the form
-const {updateScannedYarn} = useScannedYarnDataContext();
+//const {updateScannedYarn} = useScannedYarnDataContext();
  const router = useRouter();
 
   // the final yarn data to be passed to the form
@@ -57,10 +67,12 @@ function handlechosen(item: RavelrySearchResult){
   'skeins': "1",
         }
 setYarnData(confirmedData)
-updateScannedYarn(confirmedData);
+//updateScannedYarn(confirmedData);
 //close modal
 onClose();
-router.push('/(tabs)/addYarn')
+router.push({pathname: '/(tabs)/addYarn',
+  params:{scannedYarn: JSON.stringify(confirmedData)}
+})
         
 
 }

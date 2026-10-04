@@ -6,7 +6,7 @@ import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import TopMatches from '@/components/TopMatches';
 import ConfirmModal from '@/components/ConfirmModal';
-import { useScannedYarnDataContext, ScannedYarnData } from '@/useContext/context';
+
 /*
 1. open camera view
 2. scan code => reurn code type and number
@@ -34,7 +34,17 @@ type RavelryColorResult = {
   name: string;
   [key: string]: any; // allow other fields from the API without listing every one
 };
-
+interface ScannedYarnData {
+  binId: number;
+  image: string;
+  yarnName: string;
+  brandName: string;
+  color: string;
+  colorWay: string;
+  weight: string;
+  fiber: string[];
+  skeins: string;
+}
 export default function UPCScan(){
     //Camera states
     const [facing, setFacing] = useState<CameraType>('back');

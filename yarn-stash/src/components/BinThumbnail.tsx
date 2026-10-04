@@ -3,6 +3,7 @@ import YarnThumbnail from "./YarnThumbnail";
 import YarnMiniThumbnail from "./YarnMiniThumbnail";
 import { useSQLiteContext } from "expo-sqlite";
 import { useEffect, useState } from "react";
+import EditBins from "./EditBins";
 
 interface Yarn{
   id: number;
@@ -33,7 +34,8 @@ interface Bin{
 }
 // takes in an array of yarns and a label for the bin
 export default function BinThumbnail({id, title, pressedBin, setPressedBin}: binThumbnailProps) {
-
+//modal visibilty state
+const [modalVisible, setModalVisible] = useState(false);;
   //state for the list of yarn items
   const [items, setItems] = useState <Yarn []>([]);
 //connect to db
@@ -63,22 +65,25 @@ setPressedBin({id: id, title: title});
   console.log(id, title);
   
 }
+
+//on long press show a confirmation modal to delete the bin
+function handleLongPress(){
+setModalVisible(true)
+  console.log("you long pressed the button ", modalVisible)
+}
   // show the first four yarn thumbnails in a flex grid
     return (
-    <Pressable style={styles.container} onPress={handlePress}>
+    <Pressable style={styles.container} onPress={handlePress} onLongPress={handleLongPress}>
       <Text style={styles.title}>{title}</Text>
       <Text style= {styles.skeins}>number Skeins</Text>
       <View style={styles.gridContainer}>
         {items[0]&&  <YarnMiniThumbnail {... items[0]}/>  }
          {items[1]&&  <YarnMiniThumbnail {... items[1]}/>  }
           {items[2]&&  <YarnMiniThumbnail {... items[2]}/>  }
-           
-        
-        
-    
 
       </View>
-     
+      <>
+      <EditBins id={id} modalVisible={modalVisible} setModalVisible={setModalVisible}/></>
     </Pressable>
   );
 }
