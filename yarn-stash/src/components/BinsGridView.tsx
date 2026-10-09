@@ -14,10 +14,11 @@ interface GridViewProps{
     data: Bin[],
     pressedBin?: Bin,
     setPressedBin: (pressed: Bin) => void;
+    onBinDeleted: () => void;
    
 }
 
-export default function BinsGridView({data, pressedBin, setPressedBin} : GridViewProps){
+export default function BinsGridView({data, pressedBin, setPressedBin, onBinDeleted} : GridViewProps){
 
 
 
@@ -29,7 +30,7 @@ export default function BinsGridView({data, pressedBin, setPressedBin} : GridVie
             <Text style={styles.header}>X Bins</Text>
               <FlatList
       data={data}
-      renderItem= {({item}) => <BinThumbnail id={item.id} title={item.title} pressedBin = {pressedBin} setPressedBin={setPressedBin}/>}
+      renderItem= {({item}) => <BinThumbnail id={item.id} title={item.title} pressedBin = {pressedBin} setPressedBin={setPressedBin} onBinDeleted={onBinDeleted}/>}
       
       />
 

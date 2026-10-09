@@ -246,10 +246,11 @@ function handleRItemPress(item: Bin){
         return;
     }
       try{
-        await db.runAsync('INSERT INTO bins (title) VALUES(?)',[inputBin]);
+       const result= await db.runAsync('INSERT INTO bins (title) VALUES(?)',[inputBin]);
            console.log('a new bin named: ', inputBin ,'was added');
            //reload the bin list
            await loadBinList();
+          
            // reset bin input
            setInputBin('')
            // close the add new bin modal

@@ -12,8 +12,9 @@ interface EditBinsProps {
     id: number;
     modalVisible: boolean;
     setModalVisible: (value: boolean | ((prevState: boolean) => boolean)) => void;
+    onBinDeleted: ()=> void;
 }
-export default function EditBins({id, modalVisible, setModalVisible} : EditBinsProps){
+export default function EditBins({id, modalVisible, setModalVisible, onBinDeleted} : EditBinsProps){
 
 
     //connect to db
@@ -46,6 +47,7 @@ async function deleteBins (){
     try{
        const result = await db.runAsync(`DELETE FROM bins WHERE id = ${id}`)
        setModalVisible(false);
+       onBinDeleted(); // reload the bins list
 console.log("bin deleted")
     }catch(e){
         console.log("error deleting bins: ,", e)

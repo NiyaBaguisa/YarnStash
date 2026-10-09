@@ -13,7 +13,7 @@ interface Yarn{
   colorway: string;
   weight: number;
   fiber: string;
-  skeins: string;
+  skeins: number;
 };
 
 

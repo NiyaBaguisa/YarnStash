@@ -24,6 +24,7 @@ interface binThumbnailProps{
   title:string,
   pressedBin?: Bin,
   setPressedBin : (pressed:Bin) => void;
+  onBinDeleted: () => void;
   
 
 }
@@ -33,7 +34,7 @@ interface Bin{
     title: string
 }
 // takes in an array of yarns and a label for the bin
-export default function BinThumbnail({id, title, pressedBin, setPressedBin}: binThumbnailProps) {
+export default function BinThumbnail({id, title, pressedBin, setPressedBin, onBinDeleted}: binThumbnailProps) {
 //modal visibilty state
 const [modalVisible, setModalVisible] = useState(false);;
   //state for the list of yarn items
@@ -83,7 +84,7 @@ setModalVisible(true)
 
       </View>
       <>
-      <EditBins id={id} modalVisible={modalVisible} setModalVisible={setModalVisible}/></>
+      <EditBins id={id} modalVisible={modalVisible} setModalVisible={setModalVisible} onBinDeleted={onBinDeleted}/></>
     </Pressable>
   );
 }

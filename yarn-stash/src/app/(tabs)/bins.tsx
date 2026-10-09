@@ -1,5 +1,6 @@
 import { View, } from 'react-native';
-import {useState, useEffect} from 'react';
+import {useState, useEffect, useCallback} from 'react';
+import { useFocusEffect } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import BinExpandedView from "@/components/BinExpandedView";
@@ -40,13 +41,15 @@ export default function Bins() {
         setIsLoading(false);
       }
     }
-    // things that run once on mount
-    useEffect(()=>{
-      loadBinList();
+    // things that run once on when screen is focused /unfocused
+      useFocusEffect(
+  useCallback(() => {
+     loadBinList();
      console.log("use effect results for binslist state:", binsList)
      console.log("pressed Bin state: " , pressedBin) //making sure this is falsy on mount
       
-    },[])
+  }, [])
+);
 //things that run on every render
     useEffect(()=>{
       handleLiftedData();
@@ -66,7 +69,7 @@ export default function Bins() {
 //TO DO: bins expanded view should take in a prop of the title of the selected bin
     return(
         <SafeAreaView>
-           {isBinSelected? <BinExpandedView pressedBin={pressedBin} setPressedBin={setPressedBin} isBinSelected={isBinSelected} setIsBinSelected={setIsBinSelected}/>: <BinsGridView data={binsList} pressedBin={pressedBin} setPressedBin={setPressedBin}/>} 
+           {isBinSelected? <BinExpandedView pressedBin={pressedBin} setPressedBin={setPressedBin} isBinSelected={isBinSelected} setIsBinSelected={setIsBinSelected}/>: <BinsGridView data={binsList} pressedBin={pressedBin} setPressedBin={setPressedBin} onBinDeleted={loadBinList}/>} 
         
         </SafeAreaView>
     
