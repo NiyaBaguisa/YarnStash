@@ -1,10 +1,10 @@
 import { Text, View, StyleSheet, Image, Button, FlatList, TextInput, Pressable } from "react-native";
-import { Link } from "expo-router";
-import {useState, useEffect} from 'react';
+import { Link, useFocusEffect } from "expo-router";
+import {useState, useEffect, useCallback} from 'react';
 import { useSQLiteContext } from "expo-sqlite";
 import YarnThumbnail from "@/components/YarnThumbnail";
 import { SafeAreaView } from "react-native-safe-area-context";
-import YarnDetails from "@/components/YarnDetails";
+
 
 interface DBYarn{
   id: number;
@@ -91,10 +91,12 @@ const loadData = async() =>{
 
  }
 }
-  
-useEffect(()=>{
-  loadData();
-},[])
+
+useFocusEffect(
+  useCallback(() => {
+    loadData();
+  }, [db])
+);
 
 // toggle filter TO DO: FIX STATE MANAGEMENT 
 function toggleFilter(filter : string){
@@ -168,7 +170,7 @@ return (
         <FlatList
         data ={filteredItems}
         keyExtractor={(item)=> item.id.toString()}
-        renderItem={({item}) => <YarnThumbnail item={item} isYarnSelected={isYarnSelected} setIsYarnSelected={setIsYarnSelected} selectedYarn={selectedYarn} setSelectedYarn={setSelectedYarn}/>}/>
+        renderItem={({item}) => <YarnThumbnail item={item} isYarnSelected={isYarnSelected} setIsYarnSelected={setIsYarnSelected} selectedYarn={selectedYarn} setSelectedYarn={setSelectedYarn} onYarnDeleted={loadData}/>}/>
       </View>
     </View>
 

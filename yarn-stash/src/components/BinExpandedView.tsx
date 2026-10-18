@@ -4,6 +4,7 @@ import YarnThumbnail from "@/components/YarnThumbnail";
 import { useSQLiteContext } from "expo-sqlite";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import YarnDetails from './YarnDetails';
+import EmptyData from './Splash/EmptyData';
 
 // type for yarn object
 interface Yarn{
@@ -75,11 +76,13 @@ const [selectedYarn, setSelectedYarn] = useState<Yarn>();
             </Pressable>
 
            </View>
+           
              <FlatList
              data={currentBinList}
+             ListEmptyComponent={<EmptyData />}
              keyExtractor={(item)=> item.id.toString()}
                      renderItem={({item})=>(
-                         <YarnThumbnail item ={item} isYarnSelected={isYarnSelected} setIsYarnSelected={setIsYarnSelected} selectedYarn={selectedYarn} setSelectedYarn={setSelectedYarn}/>)}/>
+                         <YarnThumbnail item ={item} isYarnSelected={isYarnSelected} setIsYarnSelected={setIsYarnSelected} selectedYarn={selectedYarn} setSelectedYarn={setSelectedYarn} onYarnDeleted={loadList}/>)}/>
 </>}
            </View>
             

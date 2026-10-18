@@ -36,7 +36,7 @@ interface Bin{
 // takes in an array of yarns and a label for the bin
 export default function BinThumbnail({id, title, pressedBin, setPressedBin, onBinDeleted}: binThumbnailProps) {
 //modal visibilty state
-const [modalVisible, setModalVisible] = useState(false);;
+const [modalVisible, setModalVisible] = useState(false);
   //state for the list of yarn items
   const [items, setItems] = useState <Yarn []>([]);
 //connect to db

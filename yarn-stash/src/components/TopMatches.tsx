@@ -2,7 +2,6 @@ import {Modal, Button, Pressable, View, Image, Text, TouchableOpacity, Animated,
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useEffect, useState } from 'react';// define what a search result yarn looks like
-//import { useScannedYarnDataContext, ScannedYarnData } from '@/useContext/context';
 
 //TO DO: lift state up to upc scan, then up to add yarn form
 type RavelrySearchResult = {

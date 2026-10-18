@@ -1,6 +1,8 @@
 // this is where the boxes for the yarn is made and then the bins and the horizontal scroll bars will just take in this component
 import { Text, View,Image, Pressable, StyleSheet } from "react-native";
-//import {ReactComponent as DefaultImage} from '@/assets/images/yarn-stash-yarn-ball-icon.svg';
+import EditYarn from "./EditYarn";
+import { useState } from "react";
+
 // type for yarn object
 interface Yarn{
     id: number;
@@ -22,14 +24,19 @@ interface YarnThumbnailProps{
     setIsYarnSelected: (value: boolean)=>void,
   selectedYarn?: Yarn,
   setSelectedYarn: (item: Yarn | undefined) => void,
+  onYarnDeleted: ()=> void;
   
 
 }
 
-export default function YarnThumbnail({item, isYarnSelected, setIsYarnSelected, selectedYarn, setSelectedYarn}: YarnThumbnailProps){
+export default function YarnThumbnail({item, isYarnSelected, setIsYarnSelected, selectedYarn, setSelectedYarn, onYarnDeleted}: YarnThumbnailProps){
 
   const weights: string[] = ['Lace', 'Super Fine', 'Fine', 'Light', 'Medium', 'Bulky', 'Super Bulky', 'Jumbo'];
   const weightDisplay = `${item.weight} ${weights.indexOf(item.weight)}`
+
+  //modal visibilty state
+  const [modalVisible, setModalVisible] = useState(false);
+
     //when thumbnail is pressed pass up the state
   function handlePress(){
     setSelectedYarn(item);
@@ -37,9 +44,15 @@ export default function YarnThumbnail({item, isYarnSelected, setIsYarnSelected, 
 
 
   };
+
+  //handle long press to bring up editing /deleteing modal
+  function handleLongPress(){
+    setModalVisible(true);
+    console.log('you long pressed the yarn thumbnail', modalVisible);;
+  }
   
   return(
-      <Pressable onPress={handlePress}>
+      <Pressable onPress={handlePress} onLongPress={handleLongPress}>
 
      
         <View style={styles.thumbnailContainer}>
@@ -64,6 +77,7 @@ export default function YarnThumbnail({item, isYarnSelected, setIsYarnSelected, 
                    <Text style ={styles.weightTag}>{weightDisplay}</Text>
           
         </View>
+        <EditYarn id={item.id} modalVisible ={modalVisible} setModalVisible={setModalVisible} onYarnDeleted= {onYarnDeleted}/>
          </Pressable>
 
     )

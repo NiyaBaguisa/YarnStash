@@ -3,6 +3,7 @@ import { useEffect ,useState} from 'react';
 import { View, Text, Pressable, Modal} from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
+
 interface Bin{
     id: number,
     title: string
@@ -35,9 +36,25 @@ export default function EditBins({id, modalVisible, setModalVisible, onBinDelete
  }
 
    };
+   //load yarn table
+     const loadYarnList = async()=>{
+    try{
+      //select only unique values from bin table
+            const results = await db.getAllAsync(`SELECT * FROM master
+                WHERE binId = ${id}
+                ORDER BY id DESC `);
+                console.log("MASTER render in edit bins: ", results)
+           
+        }catch(e){
+            console.log("error loading bin data", e)
+
+ }
+
+   };
 
    useEffect(()=>{
         loadBinList();
+        loadYarnList();
     }, [])
 
 
@@ -45,7 +62,8 @@ export default function EditBins({id, modalVisible, setModalVisible, onBinDelete
 async function deleteBins (){
 
     try{
-       const result = await db.runAsync(`DELETE FROM bins WHERE id = ${id}`)
+       const bResult = await db.runAsync(`DELETE FROM bins WHERE id = ${id}`)
+       const yResult = await db.runAsync(`DELETE from master WHERE binId = ${id}`)
        setModalVisible(false);
        onBinDeleted(); // reload the bins list
 console.log("bin deleted")

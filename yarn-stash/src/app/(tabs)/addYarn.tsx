@@ -1,5 +1,5 @@
 import { TextInput, View, ScrollView, Modal,Pressable, StyleSheet, Button, Text, Image, Alert, FlatList, ImageSourcePropType } from 'react-native';
-import {useForm, SubmitHandler, Controller} from "react-hook-form";
+import {useForm, SubmitHandler, Controller, } from "react-hook-form";
 import * as ImagePicker from 'expo-image-picker';
 import {useState, useEffect, useMemo, useCallback} from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -7,7 +7,8 @@ import {Link, useRouter, Tabs, useFocusEffect, useLocalSearchParams} from 'expo-
 import { useSQLiteContext } from 'expo-sqlite';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import ChipInput from '@/components/ChipInput';
-
+import ColorPicker from '@/components/ColorPicker';
+import { isPickerColor } from '@/components/ColorPicker';
 type Inputs ={
   binId: number
   image: string
@@ -42,6 +43,11 @@ export interface ScannedYarnData {
   fiber: string[];
   skeins: string;
 }
+//error component
+function FieldError({ message }: { message?: string }) {
+  return message ? <Text style={styles.errorText}>{message}</Text> : null;
+}
+
 export default function AddYarn() {
 // arr of bin options
 const [binOptions, setBinOptions] = useState<Bin[]>([]);
@@ -104,15 +110,17 @@ const [selectedWeight, setSelectedWeight] = useState<Weight>(weights[0]);
   const [image, setImage] = useState<string>('');
 // camera variables
       const [permission, requestPermission] = useCameraPermissions();
-//empty form values
+     //empty form values
 const emptyForm: Inputs = {
   binId: 1, image: '', yarnName: '', brandName: '', color: '',
   colorWay: '', weight: '', fiber: [], skeins: '1',
 };
 const router = useRouter();
-
+//ck if the form is in edit or add mode
    // parameters inherited from topMatches
- const {scannedYarn} = useLocalSearchParams<{scannedYarn:string}>(); 
+ const {scannedYarn, editId} = useLocalSearchParams<{scannedYarn:string ; editId? : string}>(); 
+ // is the form in edit mode
+ const isEditing = !!editId;
  //parse the scannedYarn JSON string
  const parsedScannedYarn = useMemo(()=>{
   //scannedyarn is falsy return 
@@ -157,7 +165,7 @@ return JSON.parse(scannedYarn) as ScannedYarnData;
   }
   };
 
-  const {reset, handleSubmit, control, setValue, formState: {errors},} = useForm<Inputs>();
+  const {reset, handleSubmit, control, setValue, register, trigger, formState: {errors},} = useForm<Inputs>({mode: 'onTouched'});
  //connect to db
  const db = useSQLiteContext();
 
@@ -179,11 +187,17 @@ return JSON.parse(scannedYarn) as ScannedYarnData;
 
    useEffect(()=>{
         loadBinList();
+      
+        
     }, [])
+
+register('binId', { validate: v => Number(v) > 0 || 'Please choose a bin' });
+register('weight', { required: 'Please choose a yarn weight' });
+register('fiber', { validate: v => (v && v.length > 0) || 'Add at least one fiber' });
 //on bin title press, set that bin to selected bin
 function handleRItemPress(item: Bin){
   setSelectedBin(item);
-  setValue('binId', item.id)
+  setValue('binId', item.id, { shouldValidate: true })
   setIsDropdownVisible(false);
 
 }
@@ -265,7 +279,7 @@ function handleRItemPress(item: Bin){
 
     //handle press for selected weight
     function handleWeightPress(item: Weight){
-  setValue('weight', item.name);
+  setValue('weight', item.name, { shouldValidate: true });
   setSelectedWeight(item);
  
 
@@ -290,20 +304,52 @@ function handleRItemPress(item: Bin){
     
   //on submit log the data to thre console
   const onSubmit: SubmitHandler<Inputs> = async(data) => {
-    try{
+     const values = [
+    Number(data.binId), data.image || '', data.yarnName, data.brandName,
+    data.color, data.colorWay, data.weight, JSON.stringify(data.fiber), Number(data.skeins),
+  ];
+    if (isEditing){
+      try{
+        await db.runAsync(
+          `UPDATE master
+         SET binId = ?, image = ?, yarnName = ?, brandName = ?, color = ?,
+             colorWay = ?, weight = ?, fiber = ?, skeins = ?
+         WHERE id = ?`,
+        [...values, Number(editId)]
+      );
+//reset router\
+ router.setParams({ editID: undefined, scannedYarn: undefined }); // so "add" is blank next time
+      //go back to previous screen
+      router.back();
+
+      }catch(e){
+        console.log(`error making changes in database: `, e)
+      }
+
+    }else{
+       try{
        await db.runAsync(
         //add data to master yarn table ADJUST BIN DATA
     'INSERT INTO master (binId, image, yarnName, brandName, color, colorWay, weight, fiber, skeins) VALUES (?,?,?,?,?,?,?,?,?)',
-    [Number(data.binId), data.image || '', data.yarnName, data.brandName, data.color, data.colorWay, data.weight, JSON.stringify(data.fiber), Number(data.skeins)]
+    values
    );
-   
-   
-    console.log(data)
-    //to do: clear form
+   //alert submitted
+Alert.alert('New yarn added to your inventory', '', [{ text: 'OK' }], {
+  cancelable: true,
+  onDismiss: () => console.log('Alert dismissed by outside tap'),
+});
+
+    //clear form
     reset();
+  
+// go home
+router.push(`/(tabs)/bins`)
     } catch(e){
       console.log('error logging data into yarn database: ',e)
     }
+      
+    }
+   
   
   };
  
@@ -339,10 +385,11 @@ reset({
 if(scannedWeight){
   setSelectedWeight(scannedWeight)
 }
+setImage(parsedScannedYarn?.image ?? '');
 }, [parsedScannedYarn])
 
   useEffect(()=>{
-     setValue('fiber', chips);
+     setValue('fiber', chips, { shouldValidate: true });
         console.log("current fiber list: ", chips);
     }, [chips])
 
@@ -394,7 +441,7 @@ if(scannedWeight){
       </Pressable>
 
     </Modal>
-
+<Text>Add New Yarn</Text>
   
     <ScrollView >
       
@@ -404,10 +451,11 @@ if(scannedWeight){
 <Text>{selectedBin && selectedBin.title || `▾ Show Dropdown` }</Text>
 
     </Pressable>
+    <FieldError message={errors.binId?.message} />
 
       <View style={styles.imageContainer}>
         <Button title="choose an image from camera roll" onPress={pickImage}/>
-        {image && <Image source={{uri:image}} style={styles.image}/>}
+        {image ?  <Image source={{uri:image}} style={styles.image}/> :<Image source={require('../../../assets/images/default-img.png')} style={styles.image}/>}
       </View>
 
       <View style={styles.controllerGroup}>
@@ -415,20 +463,22 @@ if(scannedWeight){
         <Controller
         control={control}
         rules={{
-          required: true,
+          required: 'Yarn name is required',
         }}
-        render={({ field: { onChange, value } }) => (
+        render={({ field: { onChange, onBlur, value } }) => (
           <TextInput
-          style={styles.input}
+          style={[styles.input, errors.yarnName && styles.inputError]}
             placeholder="Yarn name"
               placeholderTextColor="#999999"
             onChangeText={onChange}
+            onBlur={onBlur}
             value={value}
+          
           />
         )}
         name="yarnName"
       />
-
+ <FieldError message={errors.yarnName?.message} />
       </View>
 
       <View style={styles.controllerGroup}>
@@ -436,38 +486,40 @@ if(scannedWeight){
         <Controller
         control={control}
         rules={{
-          required: true,
+          required: 'Brand name is required',
         }}
-        render={({ field: { onChange,  value } }) => (
+        render={({ field: { onChange, onBlur,  value } }) => (
           <TextInput
-          style={styles.input}
+          style={[styles.input, errors.brandName && styles.inputError]}
             placeholder="Brand name"
               placeholderTextColor="#999999"
             onChangeText={onChange}
+            onBlur={onBlur}
             value={value}
           />
         )}
         name="brandName"
       />
+      <FieldError message={errors.brandName?.message} />
       </View>
 <View style={styles.controllerGroup}>
         <Text>Yarn Color</Text>
       <Controller
         control={control}
         rules={{
-          required: true,
+          required: 'Color is required',
         }}
-        render={({ field: { onChange, value } }) => (
-          <TextInput
-          style={styles.input}
-            placeholder="Yarn color"
-              placeholderTextColor="#999999"
-            onChangeText={onChange}
-            value={value}
-          />
-        )}
+        render={({ field: { onChange, onBlur, value } }) => (
+          <ColorPicker
+      value={value}
+      onChange={onChange}
+      onBlur={onBlur}
+      hasError={!!errors.color}
+    />
+  )}
         name="color"
       />
+      <FieldError message={errors.color?.message} />
      </View>
 
      <View style={styles.controllerGroup}>
@@ -475,19 +527,21 @@ if(scannedWeight){
       <Controller
         control={control}
         rules={{
-          required: true,
+          required: 'Color way is required',
         }}
-        render={({ field: { onChange, value } }) => (
+        render={({ field: { onChange, onBlur, value } }) => (
           <TextInput
-          style={styles.input}
+          style={[styles.input, errors.colorWay && styles.inputError]}
             placeholder="color way"
               placeholderTextColor="#999999"
             onChangeText={onChange}
+            onBlur={onBlur}
             value={value}
           />
         )}
         name="colorWay"
       />
+      <FieldError message={errors.colorWay?.message} />
      </View>
 
 <View style={styles.controllerGroup}>
@@ -497,12 +551,12 @@ if(scannedWeight){
   </View>
      
       </View>
-
+<FieldError message={errors.weight?.message} />
 <View style={styles.controllerGroup}>
 
-      <ChipInput chips ={chips} setChips={setChips}/>
+      <ChipInput chips ={chips} setChips={setChips} onBlur={()=> trigger(`fiber`)}/>
       </View>
-      
+      <FieldError message={errors.fiber?.message as string | undefined} />
 
 
   <Controller
@@ -525,15 +579,9 @@ if(scannedWeight){
         name="skeins"
       />
 
-       {/*error handling TO DO:change span to text*/}
-       
-        {errors.yarnName && <span>This field is required</span>}
-         {errors.brandName && <span>This field is required</span>}
-          {errors.color&& <span>This field is required</span>}
-            {errors.fiber && <span>This field is required</span>}
-             {errors.skeins && <span>This field is required</span>}
+     
 
-        <Button title="Submit" onPress={handleSubmit(onSubmit)}/>
+        <Button title= {isEditing ? "Save Changes" : "Submit"} onPress={handleSubmit(onSubmit)}/>
 
 <Pressable
   disabled={!permission?.granted}
@@ -613,7 +661,17 @@ selectedWeightImage: {
   borderColor: '#5B8C5A',
   borderRadius: 8,
   opacity: 1,
-}
+  
+},
+inputError: {
+  borderColor: '#C0392B',
+},
+errorText: {
+  color: '#C0392B',
+  fontSize: 12,
+  marginTop: 4,
+  marginLeft: 16,
+},
 
  
 });

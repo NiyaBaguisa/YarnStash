@@ -3,9 +3,9 @@ import { TextInput, View, ScrollView, Modal,Pressable, StyleSheet, Button, Text,
 import {useState, useEffect, useCallback} from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
-import { useFocusEffect, useLocalSearchParams } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import TopMatches from '@/components/TopMatches';
-import ConfirmModal from '@/components/ConfirmModal';
+
 
 /*
 1. open camera view
@@ -79,7 +79,8 @@ const colors = [
   'red', 'blue', 'green', 'yellow', 'purple', 'orange', 'pink',
   'black', 'white', 'brown', 'gray', 'grey', 'teal', 'navy', 'maroon',
   'beige', 'tan', 'gold', 'silver', 'cream', 'ivory', 'burgundy',
-  'lavender', 'turquoise', 'coral', 'mint', 'charcoal', 'rust', 'mustard'
+  'lavender', 'turquoise', 'coral', 'mint', 'charcoal', 'rust', 'mustard',
+  'mauve','light pink', 'light green', 'light blue'
 ];
 // generic filler words that show up in yarn titles but aren't part of a colorway name
 const fillerWords = ['yarn', 'solid', 'solids', 'skein', 'ball', 'multi', 'variegated', 'variety'];
@@ -89,6 +90,8 @@ const apiusername = process.env.EXPO_PUBLIC_username
 const apipassword = process.env.EXPO_PUBLIC_password;
 const encoded = btoa(`${apiusername}:${apipassword}`);
 
+//router declaration
+const router = useRouter();
 //Reset everything when the screen comes into focus
 
 useFocusEffect(
@@ -150,9 +153,14 @@ for (const item of data.yarns as RavelrySearchResult[]) {
 
     console.log(bestMatches.length, "Best matches:", bestMatches);
     if(bestMatches.length > 0){
-      setTopMatches(bestMatches)
+      setTopMatches(bestMatches);
 setIsVisible(true)
 
+    }else if(bestMatches.length ==0 && upcItem){
+      fillUPC(upcItem)
+
+    }else{
+      alert('There were 0 matches in our current database.')
     }
     
 
@@ -245,14 +253,35 @@ console.log(item)
   "skeins": "1", 
 
     }
+
     setupcItem(scannedItem);
-        console.log("upc returned:", upcItem)
+      
   
   }  catch(e){
     console.log(e)
   }
 }
 
+// if there are no matches from upc to ravelry fill the form with the known data from upc
+function fillUPC(item : ScannedYarnData){
+  const upcData : ScannedYarnData = {
+    //bin id is user controlled
+    binId: 0,
+    image: item.image,
+    yarnName : parseName(item.yarnName),
+    brandName : item.brandName,
+    color: item.color,
+    colorWay: parseColorway(item.yarnName, item.brandName, parseName(item.yarnName)),
+    fiber : [],
+    weight:'',
+    skeins: '1',
+  }
+  // push this data to the form and show the form
+  router.push({
+    pathname: '/(tabs)/addYarn',
+    params: {scannedYarn : JSON.stringify(upcData)}
+  })
+}
 //trigger according to if a code exists / was scanned
 useEffect(()=>{
   //fetch data

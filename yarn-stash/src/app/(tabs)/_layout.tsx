@@ -31,8 +31,9 @@ export default function TabLayout() {
       //create table
      
       onInit={async (db) => {
-         // wipe the old table entirely — we're changing bin's type, not just its name
- //await db.execAsync(`DROP TABLE IF EXISTS master;`);
+         // wipe the old tables entirely 
+//await db.execAsync(`DROP TABLE IF EXISTS master;`);
+//await db.execAsync(`DROP TABLE IF EXISTS bins;`);
   
 
         await db.execAsync(`

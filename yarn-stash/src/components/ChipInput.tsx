@@ -7,8 +7,9 @@ import { StyleSheet, View, Text, TextInput, Keyboard, Pressable} from "react-nat
 interface ChipInputProps {
     chips: string[];
      setChips: (Dispatch<SetStateAction<string[]>>);
+     onBlur?: ()=> void;
      }
-export default function ChipInput({chips, setChips}: ChipInputProps){
+export default function ChipInput({chips, setChips, onBlur}: ChipInputProps){
    
     //value of current chip
     const [chipVal, setChipVal] = useState("");
@@ -32,7 +33,7 @@ function handleDelete(chip: string){
 
     function chipsDisplay(){
    return chips.map((chip: string) => (
-      <Pressable  onPress={() => handleDelete(chip)} style={styles.chip}>
+      <Pressable  key ={chip} onPress={() => handleDelete(chip)} style={styles.chip}>
         <Text>{chip}</Text>
         <Text> X</Text>
       </Pressable>
@@ -50,6 +51,7 @@ function handleDelete(chip: string){
                         value={chipVal}
                         style={styles.input}
                         onSubmitEditing={handleNewChip}
+                        onBlur={onBlur}
                       />
                       <View>
                         {chipsDisplay()}
