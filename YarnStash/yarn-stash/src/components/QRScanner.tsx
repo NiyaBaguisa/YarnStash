@@ -50,7 +50,9 @@ useFocusEffect(
         return(
             <View >
         <Text>We need your permission to show the camera</Text>
-        <Button onPress={requestPermission} title="Request permission" />
+        <Pressable style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]} onPress={requestPermission}>
+          <Text>Request permission</Text>
+        </Pressable>
       </View>
         );
     }
@@ -77,7 +79,7 @@ useFocusEffect(
 
     return(
         <>
-         <Pressable onPress={()=>setVisible(true)}>
+         <Pressable onPress={()=> {setIsScanned(false); setVisible(true)}}>
         <Image
         style={styles.icon}
           source={require('../../assets/images/icons/dark-qr-scan.png')}/>
@@ -104,6 +106,9 @@ useFocusEffect(
     )
 
 }
+const BUTTON = '#000000';
+const BUTTON_PRESSED = '#5B9FD3'; // blue pressed state from Figma
+const FONT_BOLD = 'Comfortaa_700Bold';
 
 const styles = StyleSheet.create({
     container: {
@@ -125,10 +130,7 @@ const styles = StyleSheet.create({
     width: '100%',
     paddingHorizontal: 64,
   },
-  button: {
-    flex: 1,
-    alignItems: 'center',
-  },
+ 
   text: {
     fontSize: 24,
     fontWeight: 'bold',
@@ -141,6 +143,26 @@ const styles = StyleSheet.create({
     alignItems: "center"
   },
   icon : {
-
-  }
+width:30,
+height: 30
+  },
+   button: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'center',
+    gap: 8,
+    backgroundColor: BUTTON,
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+  },
+  buttonPressed: {
+    backgroundColor: BUTTON_PRESSED,
+  },
+  buttonText: {
+    color: '#FFFFFF',
+    fontSize: 15,
+    fontFamily: FONT_BOLD,
+  },
 });

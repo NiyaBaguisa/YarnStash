@@ -57,7 +57,7 @@ export default function YarnThumbnail({ item, isYarnSelected, setIsYarnSelected,
                  WHERE id = ${item.id}`);
              
               await db.getAllAsync(`UPDATE master
-              SET skeins = ${currentSkein} `)
+              SET skeins = ${currentSkein} WHERE id=${item.id} `)
             
          }catch(e){
              console.log("error loading yarnid: ", item.id,"'s data", e)
@@ -100,7 +100,7 @@ setCurrentSkein(prev=> prev -1);
         </View>
         {/*insert weight image here*/}
 
-        <View style={[styles.detailsContainer, { backgroundColor: item.color || FALLBACK_COLOR }]}>
+        <View style={[styles.detailsContainer, { backgroundColor: item.color.toLowerCase().trim() || FALLBACK_COLOR }]}>
           <View style = {styles.textBlock}>
             <Text style={styles.text} >{item.brandName}</Text>
             <Text style={[styles.text, styles.yarnName]}>{item.yarnName}</Text>

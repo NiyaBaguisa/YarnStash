@@ -6,6 +6,7 @@ import YarnThumbnail from "@/components/YarnThumbnail";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Animated } from "react-native";
 import QRScanner from "@/components/QRScanner";
+import EmptyData from "@/components/Splash/EmptyData";
 
 interface DBYarn {
   id: number;
@@ -189,7 +190,7 @@ export default function Index() {
         
           <FlatList
           style={styles.list}
-         
+          ListEmptyComponent={<EmptyData />}
         showsVerticalScrollIndicator={false}
             data={filteredItems}
             keyExtractor={(item) => item.id.toString()}

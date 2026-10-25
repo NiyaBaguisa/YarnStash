@@ -110,7 +110,7 @@ const [isLoading, setIsLoading] = useState<boolean>(true);
         options={{ 
           title: 'Home' ,
           tabBarIcon:({size})=>(
-            <Image source={require('../../../assets/images/tabIcons/home-icon.png')}/>
+            <Image style={styles.icon} source={require('../../../assets/images/tabIcons/home-icon.png')}/>
   )}} />
 
 
@@ -127,13 +127,7 @@ const [isLoading, setIsLoading] = useState<boolean>(true);
           href: null, // Hides it from the tab menu
         }}/>
         
-       <Tabs.Screen 
-        name="bins" 
-        options={{ 
-          title: 'Bins' ,
-          tabBarIcon:({size})=>(
-            <Image source={require('../../../assets/images/tabIcons/bin-icon.png')}/>
-           )}}/>
+   
 
       <Tabs.Screen
         name="add"
@@ -144,12 +138,18 @@ const [isLoading, setIsLoading] = useState<boolean>(true);
             style={styles.plusButton}
               onPress={()=> router.push('/(tabs)/addYarn')}
             >
-              <Text>+</Text>
+              <Text style={styles.plusIcon}>+</Text>
               </TouchableOpacity>
           ),
         }}
       />
-
+    <Tabs.Screen 
+        name="bins" 
+        options={{ 
+          title: 'Bins' ,
+          tabBarIcon:({size})=>(
+            <Image  style={styles.icon}source={require('../../../assets/images/tabIcons/bin-icon.png')}/>
+           )}}/>
 
       </Tabs>
  
@@ -165,16 +165,17 @@ const styles = StyleSheet.create({
   plusButton: {
     width: 56,
     height: 56,
+    borderRadius: 50,
 
-    backgroundColor: '#FF6FA5',
+    backgroundColor: '#222222',
     justifyContent: 'center',
     alignItems: 'center',
-    top: -12,
+    top: -20,
     alignSelf: 'center',
   },
   plusIcon: {
     color: 'white',
-    fontSize: 26,
+    fontSize: 40,
     fontWeight: '600',
     lineHeight: 28,
   },
@@ -187,6 +188,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 12,
   backgroundColor: 'rgba(0,0,0,0.1)',
+  },
+  icon: {
+    width: 30,
+    height:30,
   }
 
 });

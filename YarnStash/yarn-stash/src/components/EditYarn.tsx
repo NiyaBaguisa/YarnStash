@@ -1,6 +1,6 @@
 import { useSQLiteContext } from 'expo-sqlite';
 import { useEffect ,useState} from 'react'; 
-import { View, Text, Pressable, Modal} from 'react-native';
+import { View, Text, Pressable, Modal, StyleSheet} from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 
@@ -101,7 +101,7 @@ console.log("bin deleted")
 }
 
 function edit(){
-alert('you pressed edit yarn')
+
 //show the yarn form with the data of this item in it
 router.push({
     pathname: `/(tabs)/addYarn`,
@@ -123,17 +123,20 @@ function closeModal(){
          <Modal
     transparent={true}
     visible={modalVisible}
+    animationType="fade"
     onRequestClose={() => setModalVisible(!modalVisible)}>
-<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', 'gap': 50 }}>
+<View style={styles.overlay}>
+<View style={styles.menu}>
 
-        <Pressable onPress={deleteBins}>
-            <Text>Delete</Text>
+</View>
+        <Pressable style={({ pressed }) => [styles.pill, pressed && styles.pillPressed]} onPress={deleteBins}>
+            <Text style={styles.pillText}>Delete</Text>
         </Pressable>
-         <Pressable onPress={edit}>
-            <Text>Edit</Text>
+         <Pressable style={({ pressed }) => [styles.pill, pressed && styles.pillPressed]} onPress={edit}>
+            <Text style={styles.pillText}>Edit</Text>
         </Pressable>
-         <Pressable onPress={closeModal}>
-            <Text>Cancel</Text>
+         <Pressable style={({ pressed }) => [styles.pill, pressed && styles.pillPressed]}  onPress={closeModal}>
+            <Text style={styles.pillText}>Cancel</Text>
            
         </Pressable>
         </View>
@@ -145,3 +148,43 @@ function closeModal(){
  );
 
 }
+
+const INK = '#222222';
+const OUTLINE = '#000000';
+const BG = '#FFFFFF';
+const PRESSED = '#5B9FD3'; // blue pressed state
+const DANGER = '#C0392B';
+const FONT_BOLD = 'Comfortaa_700Bold';
+
+const styles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0,0,0,0.45)',
+  },
+  menu: {
+    width: '70%',
+    maxWidth: 280,
+    gap: 12,
+  },
+  pill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: BG,
+    borderWidth: 3,
+    borderColor: OUTLINE,
+    borderRadius: 30,
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+  },
+  pillPressed: {
+    backgroundColor: PRESSED,
+  },
+  pillText: {
+    fontSize: 16,
+    fontFamily: FONT_BOLD,
+    color: INK,
+  },
+});

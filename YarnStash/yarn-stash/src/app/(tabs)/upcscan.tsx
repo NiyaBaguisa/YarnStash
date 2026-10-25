@@ -76,7 +76,7 @@ const colors = [
 const fillerWords = ['yarn', 'solid', 'solids', 'skein', 'ball', 'multi', 'variegated', 'variety'];
 
 //RAVELRY CREDENTIALS
-const apiusername = process.env.EXPO_PUBLIC_username
+const apiusername = process.env.EXPO_PUBLIC_username;
 const apipassword = process.env.EXPO_PUBLIC_password;
 const encoded = btoa(`${apiusername}:${apipassword}`);
 
@@ -109,7 +109,7 @@ function resetScan(){
   setupcItem(undefined);
   setTopMatches([]);
 }
-
+console.log("creds present:", !!apiusername, !!apipassword);
 // Use the name of thee product from the upcscan to query same item in ravelry
 async function fetchRavelry(query : string) {
   

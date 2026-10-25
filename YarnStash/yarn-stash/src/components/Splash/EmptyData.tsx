@@ -48,8 +48,8 @@ export default function EmptyData() {
         />
     
 
-      <Text style={styles.title}>'Nothing to see here!'</Text>
-      <Text style={styles.message}>'Add a new yarn to your stash using the plus button below!'</Text>
+      <Text style={styles.title}>Nothing to see here!</Text>
+      <Text style={styles.message}>Add a new yarn to your stash using the plus button below!</Text>
 
       <Animated.Text style={[styles.arrow, { transform: [{ translateY: nudge }] }]}>
         ↓
@@ -57,7 +57,7 @@ export default function EmptyData() {
     </SafeAreaView>
   );
 }
-
+const INK = '#222222';
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -74,14 +74,14 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 26,
     fontWeight: '800',
-    color: '#6A4028',
+    color: INK,
     textAlign: 'center',
     marginBottom: 10,
   },
   message: {
     fontSize: 16,
     lineHeight: 23,
-    color: '#8A6A58',
+    color: INK,
     textAlign: 'center',
     maxWidth: 280,
   },

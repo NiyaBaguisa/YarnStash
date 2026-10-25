@@ -615,7 +615,7 @@ export default function AddYarn() {
 const INK = '#222222';
 const BG = '#FFFFFF';
 const FIELD_BORDER = '#D0D0D0';
-const BUTTON = '#000000';
+
 const BUTTON_PRESSED = '#5B9FD3'; // blue pressed state from Figma
 const ERROR = '#C0392B';
 const FONT_REGULAR = 'Comfortaa_400Regular';
@@ -724,7 +724,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignSelf: 'center',
     gap: 8,
-    backgroundColor: BUTTON,
+    backgroundColor: INK,
     borderRadius: 8,
     paddingVertical: 10,
     paddingHorizontal: 20,
@@ -796,7 +796,8 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#E5E5E5',
   },
-  icon: {
-
+    icon : {
+width:30,
+height: 30
   }
 });
