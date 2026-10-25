@@ -1,147 +1,207 @@
 // this is where the boxes for the yarn is made and then the bins and the horizontal scroll bars will just take in this component
-import { Text, View,Image, Pressable, StyleSheet } from "react-native";
+import { Text, View, Image, Pressable, StyleSheet } from "react-native";
 import EditYarn from "./EditYarn";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSQLiteContext } from "expo-sqlite";
 
 // type for yarn object
-interface Yarn{
-    id: number;
-    binId: number;
-    image: string
+interface Yarn {
+  id: number;
+  binId: number;
+  image: string
   yarnName: string;
   brandName: string;
- color: string;
- colorWay: string;
- weight: string;
+  color: string;
+  colorWay: string;
+  weight: string;
   fiber: string;
- skeins: number;
- 
+  skeins: number;
+
+}
+interface SkeinObject {
+  skeins: number
 }
 
-interface YarnThumbnailProps{
-  item : Yarn,
-   isYarnSelected: boolean,
-    setIsYarnSelected: (value: boolean)=>void,
+
+interface YarnThumbnailProps {
+  item: Yarn,
+  isYarnSelected: boolean,
+  setIsYarnSelected: (value: boolean) => void,
   selectedYarn?: Yarn,
   setSelectedYarn: (item: Yarn | undefined) => void,
-  onYarnDeleted: ()=> void;
-  
+  onYarnDeleted: () => void;
+
 
 }
 
-export default function YarnThumbnail({item, isYarnSelected, setIsYarnSelected, selectedYarn, setSelectedYarn, onYarnDeleted}: YarnThumbnailProps){
+export default function YarnThumbnail({ item, isYarnSelected, setIsYarnSelected, selectedYarn, setSelectedYarn, onYarnDeleted }: YarnThumbnailProps) {
 
   const weights: string[] = ['Lace', 'Super Fine', 'Fine', 'Light', 'Medium', 'Bulky', 'Super Bulky', 'Jumbo'];
-  const weightDisplay = `${item.weight} ${weights.indexOf(item.weight)}`
 
   //modal visibilty state
   const [modalVisible, setModalVisible] = useState(false);
 
-    //when thumbnail is pressed pass up the state
-  function handlePress(){
-    setSelectedYarn(item);
-    setIsYarnSelected(true);
-
-
-  };
+ const [currentSkein, setCurrentSkein] = useState(item.skeins);
 
   //handle long press to bring up editing /deleteing modal
-  function handleLongPress(){
+  function handleLongPress() {
     setModalVisible(true);
-    console.log('you long pressed the yarn thumbnail', modalVisible);;
+    console.log('you long pressed the yarn thumbnail', modalVisible);
   }
-  
-  return(
-      <Pressable onPress={handlePress} onLongPress={handleLongPress}>
+ const db =useSQLiteContext();
 
-     
-        <View style={styles.thumbnailContainer}>
-          <View style={styles.thumbnail}>
-            {item.image ? (
-              <Image style={styles.image} source={{ uri: item.image}} />
-            ) : (
-              <Image style={styles.image} source={require('../../assets/images/default-img.png')} />
-            )}
+ //get skein amount for this yarn
+ async function currentAmount(){
+  try{
+             const resultSkein: SkeinObject[] = await db.getAllAsync(`SELECT skeins FROM master
+                 WHERE id = ${item.id}`);
+             
+              await db.getAllAsync(`UPDATE master
+              SET skeins = ${currentSkein} `)
+            
+         }catch(e){
+             console.log("error loading yarnid: ", item.id,"'s data", e)
+ 
+  }
+ }
+useEffect(()=>{
+// 
+currentAmount()
+console.log(currentSkein)
+            
+},[increment, decrement])
+  //handle increment
+  function increment(){
+    console.log('button pressed')
+setCurrentSkein(prev=> prev +1);
+  }
+
+  //handle decrement
+  function decrement(){
+    console.log('button pressed')
+setCurrentSkein(prev=> prev -1);
+  }
+
+  return (
+    <Pressable onLongPress={handleLongPress}>
+
+
+      <View style={styles.thumbnailContainer}>
+        <View style={styles.thumbnail}>
+          <View style={styles.imageArea}>
+              {item.image ? (
+            <Image style={styles.image} source={{ uri: item.image }} />
+          ) : (
+            <Image style={styles.image} source={require('../../assets/images/default-img.png')} />
+          )}
+
           </View>
-            <View style={styles.detailsContainer}>
-             <Text style={styles.h1}>{item.yarnName}</Text>
-              <Text >{item.brandName}</Text>
-               <Text >{item.color}</Text>
-               <Text style={styles.fiberTag}>{item.fiber}</Text>
-       
-{/* line*/}
-<Text>{item.skeins} Skeins</Text>
-
-
-           </View>
-                   <Text style ={styles.weightTag}>{weightDisplay}</Text>
-          
+        
         </View>
-        <EditYarn id={item.id} modalVisible ={modalVisible} setModalVisible={setModalVisible} onYarnDeleted= {onYarnDeleted}/>
-         </Pressable>
+        {/*insert weight image here*/}
 
-    )
+        <View style={[styles.detailsContainer, { backgroundColor: item.color || FALLBACK_COLOR }]}>
+          <View style = {styles.textBlock}>
+            <Text style={styles.text} >{item.brandName}</Text>
+            <Text style={[styles.text, styles.yarnName]}>{item.yarnName}</Text>
+            <Text style={styles.text} >{item.colorWay}</Text>
+            <Text style={styles.text} >{JSON.parse(item.fiber).join(", ")}</Text>
+          </View>
+         
+         <View style = {styles.counterRow}>
+          <Pressable onPress={increment}>
+            <Text>+</Text>
+          </Pressable>
+             <Text style={styles.skeinCount}>{currentSkein}</Text>
+             <Pressable onPress={decrement}>
+            <Text>-</Text>
+          </Pressable>
+
+         </View>
+      
+        </View>
+      
+        
+      </View>
+      <EditYarn id={item.id} modalVisible={modalVisible} setModalVisible={setModalVisible} onYarnDeleted={onYarnDeleted} />
+    </Pressable>
+
+  )
 }
 
+const INK = "#222222";
+const OUTLINE = "#000000";
+const FALLBACK_COLOR = "#D9D9D9"; // used only if a yarn has no color value
+const WHITE = "#FFFFFF"; // white text will be based on color
+const BORDER = 4;
+const RADIUS = 20;
+const FONT_REGULAR = "Comfortaa_400Regular";
+const FONT_BOLD = "Comfortaa_700Bold";
 const styles = StyleSheet.create({
-  thumbnailContainer:{
-  width: 200,
-  height: 250,
-  
-    alignItems: 'center',
-  
-  borderRadius: 16
+  thumbnailContainer: {
+   width: 320,
+    height: 150,
+    flexDirection: "row",
+    alignItems: "stretch",
+    marginTop: 10,
   },
-  thumbnail:{
-    width: '100%',
-    height: '55%',
-    backgroundColor: '#f5f5f5',
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    overflow: 'hidden',
+  thumbnail: {
+       flex: 1,
+    backgroundColor: WHITE,
+    borderWidth: BORDER,
+    borderColor: OUTLINE,
+    borderRadius: RADIUS,
+    overflow: "hidden",
+    padding: 10,
   },
-  detailsContainer:{
-    backgroundColor: '#d9d9d9',
-    width: '100%',
-    height: '50%',
-    borderRadius: 16,
-    position: 'absolute',
+  detailsContainer: {
+   position: "absolute",
+    top: 0,
+    right: 0,
     bottom: 0,
-    zIndex: 2,
-    padding: 10
-
-   
-    
+    width: "60%",
+    borderWidth: BORDER,
+    borderColor: OUTLINE,
+    borderRadius: RADIUS,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    alignItems: "center",
+    justifyContent: "space-between",
   },
-  h1:{
-    fontSize: 16,
-    fontWeight: 'bold'
-
-
-  }, 
-  
-  fiberTag:{
- backgroundColor: 'white',
-    padding: 5,
-    borderRadius: 50,
-  
+   imageArea: {
+    width: "38%",
+    height: "100%",
   },
-  weightTag:{
-    position: 'absolute',
-    right: 5,
-    top: 5,
-    backgroundColor: 'red',
-    paddingTop: 5,
-    paddingBottom: 5,
-    paddingLeft: 10,
-    paddingRight: 10,
-    borderRadius: 50,
+  image: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "contain", // keeps the whole skein visible inside the white panel
   },
-  image:{
-    width: '100%',
-    height: '100%',
-    resizeMode: 'contain',
-  }
+ 
+ textBlock: {
+    alignItems: "center",
+  },
+  text: {
+    fontSize: 15,
+    lineHeight: 19,
+    fontFamily: FONT_REGULAR,
+    color: INK,
+    textAlign: "center",
+  },
+  yarnName: {
+    fontFamily: FONT_BOLD,
+  },
 
-  
+   counterRow: {
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-around",
+  },
+  skeinCount: {
+    fontSize: 22,
+    fontFamily: FONT_BOLD,
+    color: INK,
+  },
+
 });

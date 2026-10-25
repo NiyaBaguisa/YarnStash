@@ -1,24 +1,13 @@
 
-import { TextInput, View, ScrollView, Modal,Pressable, StyleSheet, Button, Text, Image, Alert, FlatList, ImageSourcePropType } from 'react-native';
+import { TextInput, View, ScrollView, Modal,Pressable, ActivityIndicator, StyleSheet, Button, Text, Image, Alert, FlatList, ImageSourcePropType } from 'react-native';
 import {useState, useEffect, useCallback} from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import TopMatches from '@/components/TopMatches';
-
-
-/*
-1. open camera view
-2. scan code => reurn code type and number
-3. use code to query upcitedb for item => return color, and title
-4. parse title and use for query for the item's name in ravelry
-5. Ravlery returns top 10 matches 
-5. compare matches to the parsed colorway from title
-6. only show matches that include the parsed colorway from the best matches
-7. show user preview of what is to be sent to the yarn data form
-8. user confirms => send data to the yarn form
-*/
-
+import Loading from '@/components/Splash/Loading';
+import { reset } from 'expo-router/build/react-navigation/routers/CommonActions';
+import ScannerUI from '@/components/Splash/ScannerUI';
 
 
 // define what a search result yarn looks like
@@ -61,7 +50,8 @@ const [parsedColorway, setParsedColorway] = useState("")
 const [upcItem, setupcItem] = useState<ScannedYarnData>()
 // top matches for user to confirm and choose from 
 const [topMatches, setTopMatches] = useState<RavelrySearchResult[]>([]);
-
+// loading for api fetch
+const [isLoading, setIsLoading] = useState(false)
 
 // list of weights to search for in description
 const weights =[
@@ -99,6 +89,7 @@ useFocusEffect(
     // Do something when the screen is focused
     setIsVisible(false);
     setIsScanned(false);
+    setIsLoading(false);
     setCode("");
     setupcItem(undefined);
     setTopMatches([]);
@@ -109,6 +100,15 @@ useFocusEffect(
     };
   }, [])
 );
+// put the screen back to its starting state so the camera can scan again
+function resetScan(){
+  setIsLoading(false);
+  setIsVisible(false);
+  setIsScanned(false);
+  setCode("");
+  setupcItem(undefined);
+  setTopMatches([]);
+}
 
 // Use the name of thee product from the upcscan to query same item in ravelry
 async function fetchRavelry(query : string) {
@@ -125,13 +125,15 @@ async function fetchRavelry(query : string) {
       console.error(`Request failed: ${response.status} ${response.statusText}`);
       const errorBody = await response.text();
       console.error(errorBody);
+      resetScan();
       return;
     }
 // data  is a page of the results (object)
     const data = await response.json();
+   
     console.log("query used for initial ravelry search: ", query )
   console.log("Success:", data);
-    
+   
    // store the best matches in an array 
      let bestMatches : RavelrySearchResult[]=[];
 // loop through the top 10 and query for colorway
@@ -147,8 +149,7 @@ for (const item of data.yarns as RavelrySearchResult[]) {
         bestMatches.push(newItem);
       }
      console.log(`Result ${item.id} of ravelry fetch: ${item.name}`);
-     //console.log('fibers:', searched.yarn.yarn_fibers)
-
+    
     }
 
     console.log(bestMatches.length, "Best matches:", bestMatches);
@@ -161,11 +162,19 @@ setIsVisible(true)
 
     }else{
       alert('There were 0 matches in our current database.')
+      setIsVisible(false);
+    setIsScanned(false);
+    setCode("");
+    setupcItem(undefined);
+    setTopMatches([]);
     }
     
 
   } catch (e) {
     console.error("Error making Ravelry fetch request:", e);
+    resetScan();
+  }finally {
+    setIsLoading(false);
   }
 }
 
@@ -180,10 +189,11 @@ if (!response.ok) {
       return null;
     }
     const data = await response.json();
+    
 return data;
 
 }catch(e){
-
+console.error("Error making Ravelry fetch request:", e);
 }
 }
 
@@ -201,11 +211,12 @@ async function queryColorway( searched: RavelrySearchResult, ravelryName: string
   
      if(upcItem){
        //the parsed colorway value from the upcscan
-     setParsedColorway(parseColorway(upcItem?.yarnName, upcItem?.brandName, ravelryName));
+       const parsedColor = parseColorway(upcItem.yarnName, upcItem.brandName, ravelryName);
+     setParsedColorway(parsedColor);
 
 
      // is the parsed colorway from the upcscan included in the colorway data array in any of the top three
-     if(colorwayData.includes(parsedColorway)){
+     if(colorwayData.includes(parsedColor)){
       console.log(searched.id, "contains parsed Colorway: ", parsedColorway, " --true")
       
      return(true);
@@ -229,6 +240,7 @@ async function fetchYarn(){
   
   try{
     const response = await fetch(`https://api.upcitemdb.com/prod/trial/lookup?upc=${code}`);
+    setIsLoading(true);
     //parse json
     const result = await response.json();
     
@@ -237,6 +249,11 @@ async function fetchYarn(){
       console.log("No product found for UPC:", code, result);
       Alert.alert("Not found", "That barcode isn't in the database. Try another or add it manually.");
       setIsScanned(false); // let the camera scan again
+      setIsVisible(false);
+   setIsLoading(false);
+    setCode("");
+    setupcItem(undefined);
+    setTopMatches([]);
       return;
     }
 
@@ -259,6 +276,7 @@ console.log(item)
   
   }  catch(e){
     console.log(e)
+    resetScan();
   }
 }
 
@@ -321,6 +339,7 @@ if(!upcItem) return;
         return;
       }  
       setIsScanned(true);
+      setIsLoading(true);
         setCode(data)
         console.log(`Bar code with type ${type} and data ${data} has been scanned!`)
         //(`Bar code with type ${type} and data ${data} has been scanned!`);
@@ -440,7 +459,11 @@ function parseColorway (title:string, brand :string, ravelryName: string){
   return leftover;
 }
     
-   
+   if(isLoading){
+    return(
+      <Loading/>
+    )
+   }
     return(
         <SafeAreaView style= {styles.container}>
             <CameraView
@@ -448,7 +471,7 @@ function parseColorway (title:string, brand :string, ravelryName: string){
             facing ={facing} 
             barcodeScannerSettings={{barcodeTypes:['upc_e', 'upc_a', 'ean13', 'ean8']}}
             onBarcodeScanned={isScanned? undefined: handleScan}/>
-           
+           <ScannerUI title="barcode"/>
          <TopMatches visible={visible} onClose={()=>setIsVisible(false)} matches={topMatches} upcItem ={upcItem} parsedColorway={parsedColorway}/> 
         </SafeAreaView>
     )
@@ -484,4 +507,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: 'white',
   },
+  loadingContainer: {
+    flex: 1,
+    backgroundColor: "ffffff",
+    justifyContent: "center",
+    alignItems: "center"
+  }
 });

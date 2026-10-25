@@ -7,7 +7,7 @@
     "scheme": "yarnstash",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon",
+      "icon": "./assets/images/icon.png",
       "bundleIdentifier": "com.niyabaguisa.yarnstash",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
@@ -15,6 +15,7 @@
     },
     "android": {
       "adaptiveIcon": {
+        "foregroundImage":"./assets/images/icon.png",
         "backgroundColor": "#E6F4FE"
       },
       "predictiveBackGestureEnabled": false,
@@ -22,17 +23,17 @@
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/icon.png"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
+          "backgroundColor": "#FFF9F2",
           "android": {
             "image": "./assets/images/splash-icon.png",
-            "imageWidth": 76
+            "imageWidth": 200
           }
         }
       ],

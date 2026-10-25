@@ -1,7 +1,8 @@
 import { Tabs, useRouter } from 'expo-router';
 import { SQLiteProvider } from 'expo-sqlite';
-import { View, Alert, Modal, TouchableOpacity, Text, StyleSheet, Pressable, TextInput} from 'react-native';
+import { View, Alert, Modal, Image, TouchableOpacity, Text, StyleSheet, Pressable, TextInput} from 'react-native';
 import { useState, useEffect, use } from 'react';
+import Splash from '@/components/Splash/Splash';
 
 interface Yarn{
   id: number;
@@ -19,12 +20,14 @@ interface Yarn{
 
 
 export default function TabLayout() {
-
+//splash screen loading
+const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const router = useRouter();
 
 
-  return (
+  return isLoading? <Splash setIsLoading={setIsLoading}/> : (
+    
     <>
     <SQLiteProvider
       databaseName="inventory.db"
@@ -104,7 +107,11 @@ export default function TabLayout() {
       <Tabs screenOptions={{ headerShown: false}}>
         <Tabs.Screen 
         name="index" 
-        options={{ title: 'Home' }} />
+        options={{ 
+          title: 'Home' ,
+          tabBarIcon:({size})=>(
+            <Image source={require('../../../assets/images/tabIcons/home-icon.png')}/>
+  )}} />
 
 
 
@@ -120,7 +127,13 @@ export default function TabLayout() {
           href: null, // Hides it from the tab menu
         }}/>
         
-      
+       <Tabs.Screen 
+        name="bins" 
+        options={{ 
+          title: 'Bins' ,
+          tabBarIcon:({size})=>(
+            <Image source={require('../../../assets/images/tabIcons/bin-icon.png')}/>
+           )}}/>
 
       <Tabs.Screen
         name="add"
@@ -142,9 +155,6 @@ export default function TabLayout() {
  
 
     </SQLiteProvider>
-
-    
-
 </>
   
     )

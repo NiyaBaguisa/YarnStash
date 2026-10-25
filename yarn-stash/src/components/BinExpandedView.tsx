@@ -1,10 +1,11 @@
-import { View, FlatList, Pressable, Text } from 'react-native';
+import { View, FlatList, StyleSheet, Pressable, Text } from 'react-native';
 import {useState, useEffect} from 'react';
 import YarnThumbnail from "@/components/YarnThumbnail";
 import { useSQLiteContext } from "expo-sqlite";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import YarnDetails from './YarnDetails';
 import EmptyData from './Splash/EmptyData';
+import QRGenerator from './QRGenerator';
 
 // type for yarn object
 interface Yarn{
@@ -58,23 +59,21 @@ const [selectedYarn, setSelectedYarn] = useState<Yarn>();
    useEffect(()=>{
         loadList();
 
-    }, [])
+    }, [pressedBin?.id])
 
     function handleBack(){
         setIsBinSelected(false);
         setPressedBin(undefined);
     }
     return(
-        <SafeAreaView>
-          
-           <View>
-            {isYarnSelected? <YarnDetails isYarnSelected={isYarnSelected} setIsYarnSelected={setIsYarnSelected} selectedYarn={selectedYarn} setSelectedYarn={setSelectedYarn} /> : 
-             <>
+        <SafeAreaView style={styles.container} >
+             
              <View>
             <Pressable onPress={handleBack}>
                <Text>Back Button</Text>
             </Pressable>
-
+<Text style={styles.header}>{pressedBin?.title}</Text>
+<QRGenerator binId={pressedBin?.id}/>
            </View>
            
              <FlatList
@@ -83,13 +82,22 @@ const [selectedYarn, setSelectedYarn] = useState<Yarn>();
              keyExtractor={(item)=> item.id.toString()}
                      renderItem={({item})=>(
                          <YarnThumbnail item ={item} isYarnSelected={isYarnSelected} setIsYarnSelected={setIsYarnSelected} selectedYarn={selectedYarn} setSelectedYarn={setSelectedYarn} onYarnDeleted={loadList}/>)}/>
-</>}
-           </View>
+
+           
             
         </SafeAreaView>
     
         )
        
-    
- 
 }
+ const styles = StyleSheet.create({
+  container:{
+   justifyContent: 'center',
+   alignItems: 'center'
+  
+  },
+  header:{
+     fontSize: 36
+  }
+   
+ });

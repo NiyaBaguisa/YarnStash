@@ -5,7 +5,7 @@ import { useSQLiteContext } from "expo-sqlite";
 import { useEffect, useState } from "react";
 import EditBins from "./EditBins";
 
-interface Yarn{
+interface Yarn {
   id: number;
   binId: number;
   image: any;
@@ -16,108 +16,121 @@ interface Yarn{
   weight: string;
   fiber: string;
   skeins: number;
- 
+
 };
 // BinThumbnail props: bin title, yarn items arr, pressed bin state, 
-interface binThumbnailProps{
+interface binThumbnailProps {
   id: number,
-  title:string,
+  title: string,
   pressedBin?: Bin,
-  setPressedBin : (pressed:Bin) => void;
+  setPressedBin: (pressed: Bin) => void;
   onBinDeleted: () => void;
-  
+
 
 }
 
-interface Bin{
-    id: number,
-    title: string
+interface Bin {
+  id: number,
+  title: string
 }
 // takes in an array of yarns and a label for the bin
-export default function BinThumbnail({id, title, pressedBin, setPressedBin, onBinDeleted}: binThumbnailProps) {
-//modal visibilty state
-const [modalVisible, setModalVisible] = useState(false);
+export default function BinThumbnail({ id, title, pressedBin, setPressedBin, onBinDeleted }: binThumbnailProps) {
+  //modal visibilty state
+  const [modalVisible, setModalVisible] = useState(false);
   //state for the list of yarn items
-  const [items, setItems] = useState <Yarn []>([]);
-//connect to db
+  const [items, setItems] = useState<Yarn[]>([]);
+  //connect to db
 
-const db =useSQLiteContext();
-// load in the list of yarn that have this bin value from the master list
-const loadYarnList = async ()=>{
-  try{
-    const results = await db.getAllAsync(`SELECT * FROM master 
+  const db = useSQLiteContext();
+  // load in the list of yarn that have this bin value from the master list
+  const loadYarnList = async () => {
+    try {
+      const results = await db.getAllAsync(`SELECT * FROM master 
        WHERE binId = ${id}
        ORDER BY id DESC`)
       setItems(results as Yarn[]);
-       console.log(results)
+      console.log(results)
 
-  }catch(e){
-    console.log("error loading yarn data for", title, "bin: ", e)
+    } catch (e) {
+      console.log("error loading yarn data for", title, "bin: ", e)
+    }
   }
-}
 
-useEffect(()=>{
-  loadYarnList();
-},[])
+  useEffect(() => {
+    loadYarnList();
+  }, [])
 
-function handlePress(){
-// lift state to bins grid view
-setPressedBin({id: id, title: title});
-  console.log(id, title);
-  
-}
+  function handlePress() {
+    // lift state to bins grid view
+    setPressedBin({ id: id, title: title });
+    console.log(id, title);
 
-//on long press show a confirmation modal to delete the bin
-function handleLongPress(){
-setModalVisible(true)
-  console.log("you long pressed the button ", modalVisible)
-}
+  }
+
+  //on long press show a confirmation modal to delete the bin
+  function handleLongPress() {
+    setModalVisible(true)
+    console.log("you long pressed the button ", modalVisible)
+  }
   // show the first four yarn thumbnails in a flex grid
-    return (
+  return (
     <Pressable style={styles.container} onPress={handlePress} onLongPress={handleLongPress}>
       <Text style={styles.title}>{title}</Text>
-      <Text style= {styles.skeins}>number Skeins</Text>
+      <Text style={styles.skeins}>
+        <Text style={styles.skeinCount}>{items.length}</Text>
+        {" "}{items.length === 1 ? "skein" : "skeins"}
+      </Text>
       <View style={styles.gridContainer}>
-        {items[0]&&  <YarnMiniThumbnail {... items[0]}/>  }
-         {items[1]&&  <YarnMiniThumbnail {... items[1]}/>  }
-          {items[2]&&  <YarnMiniThumbnail {... items[2]}/>  }
+        {items[0] && <YarnMiniThumbnail {...items[0]} />}
+        {items[1] && <YarnMiniThumbnail {...items[1]} />}
+        {items[2] && <YarnMiniThumbnail {...items[2]} />}
 
       </View>
       <>
-      <EditBins id={id} modalVisible={modalVisible} setModalVisible={setModalVisible} onBinDeleted={onBinDeleted}/></>
+        <EditBins id={id} modalVisible={modalVisible} setModalVisible={setModalVisible} onBinDeleted={onBinDeleted} /></>
     </Pressable>
   );
 }
 
+const INK = "#222222";
+const OUTLINE = "#000000";
+const WHITE = "#FFFFFF";
+const BORDER = 4;
+const RADIUS = 24;
+const FONT_REGULAR = "Comfortaa_400Regular";
+const FONT_BOLD = "Comfortaa_700Bold";
+
 const styles = StyleSheet.create({
- container:{
+  container:{
   width:'95%',
-  padding: 10,
-  backgroundColor: '#FC8DA1',
- margin: 10,
- borderRadius: 15,
- 
+  backgroundColor: WHITE,
+  borderWidth: BORDER,
+  borderColor: OUTLINE,
+  borderRadius: RADIUS,
+  paddingHorizontal: 16,
+  paddingVertical: 14,
+  margin: 10,
  },
  title:{
-  fontSize: 24,
-  
+  fontSize: 28,
+  lineHeight: 34,
+  fontFamily: FONT_REGULAR,
+  color: INK,
  },
  skeins:{
   fontSize: 16,
-
+  fontFamily: FONT_REGULAR,
+  color: INK,
  },
-
- gridContainer:{
-    flex:1,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-     alignItems: 'center',
-     justifyContent: 'center'
+skeinCount:{
+  fontFamily: FONT_BOLD,
  },
+  gridContainer: {
+   flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    marginTop: 16,
+  },
 
 
-  Text:{
-    color:'#131c26'
-  }
-  
 });

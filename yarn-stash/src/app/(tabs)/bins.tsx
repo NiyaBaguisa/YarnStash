@@ -1,6 +1,6 @@
-import { View, } from 'react-native';
-import {useState, useEffect, useCallback} from 'react';
-import { useFocusEffect } from 'expo-router';
+import { View, Alert} from 'react-native';
+import {useState, useEffect, useCallback, useMemo,} from 'react';
+import { useFocusEffect, useRouter, useLocalSearchParams } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import BinExpandedView from "@/components/BinExpandedView";
@@ -23,6 +23,7 @@ export default function Bins() {
     const [binsList, setBinsList] = useState<Bin[]>([]);
     // screen loading state
     const [isLoading, setIsLoading] = useState(true);
+    
     
     //connect to db
     const db =useSQLiteContext();
@@ -53,7 +54,7 @@ export default function Bins() {
 //things that run on every render
     useEffect(()=>{
       handleLiftedData();
-    })
+    },[pressedBin])
     //callback function to handle state passed up from grandchild: binThumbnail
     function handleLiftedData (){
       // update state for pressed bool
@@ -65,8 +66,37 @@ export default function Bins() {
   
 
     }
+const router = useRouter();
+      // parameters inherited from topMatches
+      const { qrBinPath } = useLocalSearchParams<{ qrBinPath?: string}>();
+    useEffect(()=>{
+      if(!qrBinPath){
+        return;
+      }
+      async()=>{
 
-//TO DO: bins expanded view should take in a prop of the title of the selected bin
+        try{
+          const qrBin= await db.getFirstAsync<Bin>(`SELECT * FROM bins WHERE title = ${Number(qrBinPath)}`)
+        if (qrBin){
+          setPressedBin(qrBin)
+        setIsBinSelected(true)
+      }else{
+Alert.alert('Bin not found', 'This QR code points to a bin that no longer exists.');
+        }
+
+        }catch(e){
+ console.log('error opening bin from QR', e);
+        }finally{
+           // clear the param so scanning the same bin again re-triggers this
+      router.setParams({ qrBinId: '' });
+        }
+
+
+      }
+    },[qrBinPath])
+     
+    
+      
     return(
         <SafeAreaView>
            {isBinSelected? <BinExpandedView pressedBin={pressedBin} setPressedBin={setPressedBin} isBinSelected={isBinSelected} setIsBinSelected={setIsBinSelected}/>: <BinsGridView data={binsList} pressedBin={pressedBin} setPressedBin={setPressedBin} onBinDeleted={loadBinList}/>} 
