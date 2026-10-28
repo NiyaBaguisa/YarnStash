@@ -1,16 +1,18 @@
 import { useState } from 'react';
-import { View, Text, Pressable, Modal, ScrollView, StyleSheet } from 'react-native';
+import { View, useColorScheme, Text, Pressable, Modal, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
+import { colors } from '@/colors';
 // Every shade is a valid CSS color keyword, so it can be used directly as
 // backgroundColor in React Native and still passes isCssColor().
 
+   
 export type ColorFamily = {
   name: string;
   shades: string[]; // light -> dark
 };
 
 export const COLOR_FAMILIES: ColorFamily[] = [
+  
   { name: 'Red',     shades: ['salmon', 'crimson', 'red', 'darkred'] },
   { name: 'Orange',  shades: ['lightsalmon', 'coral', 'orange', 'darkorange'] },
   { name: 'Yellow',  shades: ['khaki', 'gold', 'yellow', 'goldenrod'] },
@@ -45,6 +47,9 @@ interface ColorPickerProps {
 
 export default function ColorPicker({ value, onChange, onBlur, hasError }: ColorPickerProps) {
   const [isOpen, setIsOpen] = useState(false);
+   const systemTheme =useColorScheme();
+  const theme = systemTheme === "dark"? "dark": 'light';
+   const activeColors = colors[theme];
 
   // a scanned color like "Sage" isn't in the picker, so treat it as unset
   const selected = isPickerColor(value) ? normalizeColor(value) : '';
@@ -64,10 +69,10 @@ export default function ColorPicker({ value, onChange, onBlur, hasError }: Color
       {/* the row shown in the form */}
       <Pressable
         onPress={() => setIsOpen(true)}
-        style={[styles.field, hasError && styles.fieldError]}
+        style={[[styles.field,{backgroundColor: activeColors.bg, borderColor: activeColors.outline}], hasError && styles.fieldError]}
       >
         <View style={[styles.previewDot, { backgroundColor: selected || 'transparent' }]} />
-        <Text style={selected ? styles.fieldText : styles.placeholder}>
+        <Text style={selected ? {color: activeColors.text} : styles.placeholder}>
           {selected || 'Choose a color'}
         </Text>
       </Pressable>
@@ -75,16 +80,16 @@ export default function ColorPicker({ value, onChange, onBlur, hasError }: Color
       {/* the picker */}
       <Modal visible={isOpen} transparent animationType="slide" onRequestClose={close}>
         <Pressable style={styles.overlay} onPress={close}>
-          <SafeAreaView style={styles.sheet}>
+          <SafeAreaView style={[styles.sheet, {backgroundColor: activeColors.bg}]}>
             {/* stops taps inside the sheet from closing it */}
             <Pressable onPress={() => {}}>
-              <Text style={styles.title}>Yarn Color</Text>
-              <Text style={styles.selectedName}>{selected || 'Nothing selected'}</Text>
+              <Text style={[styles.title, {color: activeColors.text}]}>Yarn Color</Text>
+              <Text style={[styles.selectedName, {color: activeColors.text}]}>{selected || 'Nothing selected'}</Text>
 
               <ScrollView style={styles.scroll}>
                 {COLOR_FAMILIES.map(family => (
                   <View key={family.name} style={styles.familyRow}>
-                    <Text style={styles.familyName}>{family.name}</Text>
+                    <Text style={[styles.familyName, {color: activeColors.text}]}>{family.name}</Text>
                     <View style={styles.shadeRow}>
                       {family.shades.map(shade => (
                         <Pressable
@@ -113,14 +118,13 @@ const styles = StyleSheet.create({
   field: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F5F5F5',
     height: 50,
     borderWidth: 1,
-    borderRadius: 50,
+    borderRadius: 8,
     paddingHorizontal: 16,
   },
   fieldError: { borderColor: '#C0392B' },
-  fieldText: { color: '#333333' },
+ 
   placeholder: { color: '#999999' },
   previewDot: {
     width: 22,
@@ -132,17 +136,17 @@ const styles = StyleSheet.create({
   },
   overlay: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.35)' },
   sheet: {
-    backgroundColor: '#FFFFFF',
+   
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 20,
     maxHeight: '80%',
   },
   title: { fontSize: 18, fontWeight: '600' },
-  selectedName: { color: '#666666', marginTop: 4, marginBottom: 12 },
+  selectedName: {marginTop: 4, marginBottom: 12 },
   scroll: { flexGrow: 0 },
   familyRow: { marginBottom: 14 },
-  familyName: { fontSize: 12, color: '#666666', marginBottom: 6 },
+  familyName: { fontSize: 12, marginBottom: 6 },
   shadeRow: { flexDirection: 'row', gap: 12 },
   swatch: {
     width: 52,

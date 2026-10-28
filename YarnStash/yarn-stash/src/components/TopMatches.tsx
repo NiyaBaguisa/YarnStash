@@ -1,8 +1,8 @@
-import {Modal, Button, Pressable, View, Image, Text, TouchableOpacity, Animated, StyleSheet, FlatList,} from 'react-native';
+import {Modal, useColorScheme, Pressable, View, Image, Text, TouchableOpacity, Animated, StyleSheet, FlatList,} from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useEffect, useState } from 'react';// define what a search result yarn looks like
-
+import { colors } from '@/colors';
 type RavelrySearchResult = {
   id: number;
   name: string;
@@ -35,8 +35,10 @@ type TopMatchesProps = {
   parsedColorway: string;
 };
 export default function TopMatches({ visible, onClose, matches, upcItem, parsedColorway }: TopMatchesProps){
-//filled in data for the form
-
+  const systemTheme =useColorScheme();
+  const theme = systemTheme === "dark"? "dark": 'light';
+   const activeColors = colors[theme];
+   
  const router = useRouter();
 
   // the final yarn data to be passed to the form
@@ -87,7 +89,7 @@ const renderItem = ({item}:{item: RavelrySearchResult} ) => {
     null;
 
   return(
-    <Pressable style={({ pressed }) => [styles.card, pressed && styles.cardPressed]} onPress={()=> handlechosen(item)}>
+    <Pressable style={({ pressed }) => [[styles.card,{ borderColor: activeColors.outline, backgroundColor: activeColors.bg}], pressed && styles.cardPressed]} onPress={()=> handlechosen(item)}>
       <View>
       <Image
           style={styles.image}
@@ -99,11 +101,11 @@ const renderItem = ({item}:{item: RavelrySearchResult} ) => {
         />
                 </View>
                 <View style={styles.details}>
-                  <Text style={styles.name}>{item.name}</Text>
-      <Text style={styles.detailText}>Brand: {item.yarn_company_name}</Text>
-      <Text style={styles.detailText}>Color way: </Text>
-      <Text style={styles.detailText}>Weight: #{item.gauge_divisor} {item.yarn_weight.name}</Text>
-      <Text style={styles.detailText}>Fiber:</Text>
+                  <Text style={[styles.name, {color: activeColors.text}]}>{item.name}</Text>
+      <Text style={[styles.detailText,{color: activeColors.text}]}>Brand: {item.yarn_company_name}</Text>
+      <Text style={[styles.detailText,{color: activeColors.text}]}>Color way: </Text>
+      <Text style={[styles.detailText,{color: activeColors.text}]}>Weight: #{item.gauge_divisor} {item.yarn_weight.name}</Text>
+      <Text style={[styles.detailText,{color: activeColors.text}]}>Fiber:</Text>
 
                 </View>
       
@@ -114,9 +116,9 @@ const renderItem = ({item}:{item: RavelrySearchResult} ) => {
             <Modal visible={visible} 
             animationType='slide'
             onRequestClose={onClose}>
-<View style={styles.modalContent}>
+<View style={[styles.modalContent,{backgroundColor: activeColors.bg}]}>
   <View style={styles.header}>
-    <Text style={styles.title}>Results</Text>
+    <Text style={[styles.title,{color: activeColors.text},]}>Results</Text>
     <Pressable onPress={onClose}>
       <Text>Close</Text>
     </Pressable>
@@ -135,9 +137,7 @@ const renderItem = ({item}:{item: RavelrySearchResult} ) => {
         </SafeAreaView>
     )
 }
-const INK = '#222222';
-const OUTLINE = '#000000';
-const BG = '#FFFFFF';
+
 const FONT_REGULAR = 'Comfortaa_400Regular';
 const FONT_BOLD = 'Comfortaa_700Bold';
  
@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: BG
+    
   },
   header : {
  flexDirection: 'row',
@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
    fontFamily: FONT_BOLD,
     marginBottom: 12,
-    color: INK
+   
   },
   listContainer: {
     width: '100%',
@@ -185,9 +185,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    backgroundColor: BG,
+    
     borderWidth: 4,
-    borderColor: OUTLINE,
+   
     borderRadius: 24,
     padding: 12,
   },
@@ -206,13 +206,13 @@ const styles = StyleSheet.create({
    name: {
     fontSize: 16,
     fontFamily: FONT_BOLD,
-    color: INK,
+    
     marginBottom: 4,
   },
   detailText: {
     fontSize: 13,
     lineHeight: 18,
     fontFamily: FONT_REGULAR,
-    color: INK,
+    
   },
 });

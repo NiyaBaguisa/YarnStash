@@ -1,9 +1,9 @@
 import { useSQLiteContext } from 'expo-sqlite';
-import { useEffect ,useState} from 'react'; 
-import { View, Text, Pressable, Modal, StyleSheet} from 'react-native';
+import { act, useEffect ,useState} from 'react'; 
+import { View, useColorScheme, Text, Pressable, Modal, StyleSheet} from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-
+import { colors } from '@/colors';
 
 interface ScannedYarnData {
   binId: number;
@@ -37,7 +37,11 @@ interface EditYarnProps {
     onYarnDeleted: ()=> void;
 }
 export default function EditYarn({id, modalVisible, setModalVisible, onYarnDeleted} : EditYarnProps){
-//state mgmt for selected item
+ const systemTheme =useColorScheme();
+  const theme = systemTheme === "dark"? "dark": 'light';
+   const activeColors = colors[theme];
+   
+  //state mgmt for selected item
 const [currentItem, setCurrentItem]= useState<ScannedYarnData>()
     // connect to router
 const router =useRouter();
@@ -129,10 +133,10 @@ function closeModal(){
 <View style={styles.menu}>
 
 </View>
-        <Pressable style={({ pressed }) => [styles.pill, pressed && styles.pillPressed]} onPress={deleteBins}>
+        <Pressable style={({ pressed }) => [styles.pill, pressed && [styles.pillPressed,{ backgroundColor: activeColors.pressed}]]} onPress={deleteBins}>
             <Text style={styles.pillText}>Delete</Text>
         </Pressable>
-         <Pressable style={({ pressed }) => [styles.pill, pressed && styles.pillPressed]} onPress={edit}>
+         <Pressable style={({ pressed }) => [styles.pill, pressed && [styles.pillPressed,{ backgroundColor: activeColors.pressed}]]} onPress={edit}>
             <Text style={styles.pillText}>Edit</Text>
         </Pressable>
          <Pressable style={({ pressed }) => [styles.pill, pressed && styles.pillPressed]}  onPress={closeModal}>
@@ -149,11 +153,9 @@ function closeModal(){
 
 }
 
-const INK = '#222222';
 const OUTLINE = '#000000';
 const BG = '#FFFFFF';
-const PRESSED = '#5B9FD3'; // blue pressed state
-const DANGER = '#C0392B';
+
 const FONT_BOLD = 'Comfortaa_700Bold';
 
 const styles = StyleSheet.create({
@@ -180,11 +182,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   pillPressed: {
-    backgroundColor: PRESSED,
+   
   },
   pillText: {
     fontSize: 16,
     fontFamily: FONT_BOLD,
-    color: INK,
+    color: "#222222"
   },
 });

@@ -1,4 +1,4 @@
-import { TextInput, View, ScrollView, Modal, Pressable, StyleSheet, Button, Text, Image, Alert, FlatList, ImageSourcePropType } from 'react-native';
+import { TextInput, View, ScrollView, useColorScheme, Modal, Pressable, StyleSheet, Button, Text, Image, Alert, FlatList, ImageSourcePropType } from 'react-native';
 import { useForm, SubmitHandler, Controller, } from "react-hook-form";
 import * as ImagePicker from 'expo-image-picker';
 import { useState, useEffect, useMemo, useCallback } from 'react';
@@ -9,7 +9,7 @@ import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import ChipInput from '@/components/ChipInput';
 import ColorPicker from '@/components/ColorPicker';
 import { isPickerColor } from '@/components/ColorPicker';
-
+import { colors } from '@/colors';
 
 type Inputs = {
   binId: number
@@ -51,6 +51,10 @@ function FieldError({ message }: { message?: string }) {
 }
 
 export default function AddYarn() {
+   const systemTheme =useColorScheme();
+    const theme = systemTheme === "dark"? "dark": 'light';
+     const activeColors = colors[theme];
+     
   // arr of bin options
   const [binOptions, setBinOptions] = useState<Bin[]>([]);
   //use state for the bin dropdown
@@ -230,7 +234,7 @@ export default function AddYarn() {
           <Pressable
             style={styles.overlay}
             onPress={() => setIsDropdownVisible(false)}>
-            <SafeAreaView style={styles.dropdownContainer}>
+            <SafeAreaView style={[styles.dropdownContainer,{backgroundColor: activeColors.bg},]}>
               <FlatList
                 data={binOptions}
                 renderItem={rItem}
@@ -295,7 +299,7 @@ export default function AddYarn() {
           <Pressable key={item.id} onPress={() => handleWeightPress(item)}>
             <Image
               source={item.image}
-              style={[styles.weightImage, selectedWeight.id === item.id && styles.selectedWeightImage]} />
+              style={[styles.weightImage, selectedWeight.id === item.id && [styles.selectedWeightImage, {borderColor: activeColors.outline}]]} />
           </Pressable>
         )}
       </>
@@ -412,7 +416,7 @@ export default function AddYarn() {
 
   return (
 
-    <SafeAreaView style={styles.screen}>
+    <SafeAreaView style={[styles.screen,{backgroundColor: activeColors.bg}]}>
       <Modal
         transparent={true}
         visible={isModalVisible}
@@ -423,11 +427,12 @@ export default function AddYarn() {
         <Pressable
           style={styles.overlay}
           onPress={() => setIsModalVisible(false)}>
-          <SafeAreaView style={styles.modalContentContainer}>
-            <Text style={[styles.label, styles.modalLabel]}>Please Input New Bin Name:</Text>
+          <SafeAreaView style={[styles.modalContentContainer, {backgroundColor: activeColors.bg}]}>
+            <Text style={[styles.label,{ color: activeColors.text}, styles.modalLabel]}>Please Input New Bin Name:</Text>
 
             <TextInput
-              style={styles.input}
+              style={[styles.input,{backgroundColor: activeColors.bg,
+    color: activeColors.text}]}
               placeholder="New Bin Name"
               placeholderTextColor="#999999"
               onChangeText={setInputBin}
@@ -436,8 +441,8 @@ export default function AddYarn() {
 
             <Pressable
               onPress={addNewBin}
-              style={({ pressed }) => [styles.button, styles.modalButton, pressed && styles.buttonPressed]}>
-              <Text style={styles.buttonText}>Add Bin</Text>
+              style={({ pressed }) => [styles.button, styles.modalButton,{backgroundColor: activeColors.text}, pressed && [styles.buttonPressed, {backgroundColor: activeColors.pressed}]]}>
+              <Text style={[styles.buttonText, {color: activeColors.buttonText,}]}>Add Bin</Text>
             </Pressable>
 
           </SafeAreaView>
@@ -445,7 +450,7 @@ export default function AddYarn() {
 
       </Modal>
       <View style={styles.header}>
-        <Text style={styles.title}>Add New Yarn</Text>
+        <Text style={[styles.title,{ color: activeColors.text}]}>Add New Yarn</Text>
          <Pressable
           disabled={!permission?.granted}
           onPress={() => router.push('/upcscan')}
@@ -463,7 +468,7 @@ export default function AddYarn() {
           onPress={toggleDropdown}
            style={[styles.input, styles.dropdownField, !!errors.binId && styles.inputError]}>
           {handleDropdown()}
-          <Text style={[styles.dropdownText, !selectedBin && styles.placeholderText]}>{selectedBin && selectedBin.title || `Select Bin ▾`}</Text>
+          <Text style={[[styles.dropdownText,{color: activeColors.text}], !selectedBin && styles.placeholderText]}>{selectedBin && selectedBin.title || `Select Bin ▾`}</Text>
 
         </Pressable>
         <FieldError message={errors.binId?.message} />
@@ -476,13 +481,13 @@ export default function AddYarn() {
           {image ? <Image source={{ uri: image }} style={styles.image} /> : <Image source={require('../../../assets/images/default-img.png')} style={styles.image} />}
          <Pressable
           onPress={pickImage}
-          style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}>
-          <Text style={styles.buttonText}>Choose a photo</Text>
+          style={({ pressed }) => [[styles.button, {backgroundColor: activeColors.button}], pressed && styles.buttonPressed]}>
+          <Text style={[styles.buttonText, {color: activeColors.buttonText} ]}>Choose a photo</Text>
         </Pressable>
         </View>
 
         <View style={styles.controllerGroup}>
-          <Text style={styles.label}>Yarn Name</Text>
+          <Text style={[styles.label, { color: activeColors.text}]}>Yarn Name</Text>
           <Controller
             control={control}
             rules={{
@@ -490,7 +495,8 @@ export default function AddYarn() {
             }}
             render={({ field: { onChange, onBlur, value } }) => (
               <TextInput
-                style={[styles.input, errors.yarnName && styles.inputError]}
+                style={[[styles.input,{backgroundColor: activeColors.bg,
+    color: activeColors.text}], errors.yarnName && styles.inputError]}
                 placeholder="Yarn name"
                 placeholderTextColor="#999999"
                 onChangeText={onChange}
@@ -505,7 +511,7 @@ export default function AddYarn() {
         </View>
 
         <View style={styles.controllerGroup}>
-          <Text style={styles.label}>Brand Name</Text>
+          <Text style={[styles.label, { color: activeColors.text}]}>Brand Name</Text>
           <Controller
             control={control}
             rules={{
@@ -513,7 +519,8 @@ export default function AddYarn() {
             }}
             render={({ field: { onChange, onBlur, value } }) => (
               <TextInput
-                style={[styles.input, errors.brandName && styles.inputError]}
+                style={[[styles.input,{backgroundColor: activeColors.bg,
+    color: activeColors.text}], errors.brandName && styles.inputError]}
                 placeholder="Brand name"
                 placeholderTextColor="#999999"
                 onChangeText={onChange}
@@ -526,7 +533,7 @@ export default function AddYarn() {
           <FieldError message={errors.brandName?.message} />
         </View>
         <View style={styles.controllerGroup}>
-          <Text style={styles.label}>Yarn Color</Text>
+          <Text style={[styles.label, { color: activeColors.text}]}>Yarn Color</Text>
           <Controller
             control={control}
             rules={{
@@ -546,7 +553,7 @@ export default function AddYarn() {
         </View>
 
         <View style={styles.controllerGroup}>
-          <Text style={styles.label}>Color Way</Text>
+          <Text style={[styles.label, { color: activeColors.text}]}>Color Way</Text>
           <Controller
             control={control}
             rules={{
@@ -554,7 +561,8 @@ export default function AddYarn() {
             }}
             render={({ field: { onChange, onBlur, value } }) => (
               <TextInput
-                style={[styles.input, errors.colorWay && styles.inputError]}
+                style={[[styles.input,{backgroundColor: activeColors.bg,
+    color: activeColors.text}], errors.colorWay && styles.inputError]}
                 placeholder="color way"
                 placeholderTextColor="#999999"
                 onChangeText={onChange}
@@ -568,7 +576,7 @@ export default function AddYarn() {
         </View>
 
         <View style={styles.controllerGroup}>
-          <Text style={styles.label}>Yarn Weight</Text>
+          <Text style={[styles.label, { color: activeColors.text}]}>Yarn Weight</Text>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
             {inputWeights()}
           </View>
@@ -589,7 +597,8 @@ export default function AddYarn() {
           }}
           render={({ field: { onChange, value } }) => (
             <TextInput
-              style={styles.input}
+              style={[styles.input,{backgroundColor: activeColors.bg,
+    color: activeColors.text}]}
               placeholder="How many skeins or cakes"
               placeholderTextColor="#999999"
               inputMode='numeric'
@@ -604,19 +613,16 @@ export default function AddYarn() {
 
   <Pressable
         onPress={handleSubmit(onSubmit)}
-        style={({ pressed }) => [styles.button, styles.submitButton, pressed && styles.buttonPressed]}>
-        <Text style={styles.buttonText}>{isEditing ? "Save Changes" : "Add Yarn"}</Text>
+        style={({ pressed }) => [[styles.button, {backgroundColor: activeColors.button}], styles.submitButton, pressed && styles.buttonPressed]}>
+        <Text style={[styles.buttonText, {color: activeColors.buttonText}]}>{isEditing ? "Save Changes" : "Add Yarn"}</Text>
       </Pressable>
 
       </ScrollView>
     </SafeAreaView>
   );
 }
-const INK = '#222222';
-const BG = '#FFFFFF';
-const FIELD_BORDER = '#D0D0D0';
 
-const BUTTON_PRESSED = '#5B9FD3'; // blue pressed state from Figma
+const FIELD_BORDER = '#D0D0D0';
 const ERROR = '#C0392B';
 const FONT_REGULAR = 'Comfortaa_400Regular';
 const FONT_BOLD = 'Comfortaa_700Bold';
@@ -625,7 +631,7 @@ const FONT_BOLD = 'Comfortaa_700Bold';
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: BG,
+    
   },
   content: {
     paddingHorizontal: 20,
@@ -644,7 +650,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontFamily: FONT_BOLD,
-    color: INK,
+   
   },
  
   // ---- fields ----
@@ -655,12 +661,10 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 13,
     fontFamily: FONT_REGULAR,
-    color: INK,
     marginBottom: 4,
   },
   input: {
-    backgroundColor: BG,
-    color: INK,
+   
     fontSize: 14,
     fontFamily: FONT_REGULAR,
     height: 44,
@@ -668,10 +672,6 @@ const styles = StyleSheet.create({
     borderColor: FIELD_BORDER,
     borderRadius: 8,
     paddingHorizontal: 12,
-  },
-  inputFocused: {
-    borderWidth: 2,
-    borderColor: INK,
   },
   inputError: {
     borderColor: ERROR,
@@ -693,7 +693,7 @@ const styles = StyleSheet.create({
   dropdownText: {
     fontSize: 14,
     fontFamily: FONT_REGULAR,
-    color: INK,
+    
   },
   placeholderText: {
     color: '#999999',
@@ -724,16 +724,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignSelf: 'center',
     gap: 8,
-    backgroundColor: INK,
+  
     borderRadius: 8,
     paddingVertical: 10,
     paddingHorizontal: 20,
   },
   buttonPressed: {
-    backgroundColor: BUTTON_PRESSED,
+    
   },
   buttonText: {
-    color: '#FFFFFF',
+    
     fontSize: 15,
     fontFamily: FONT_BOLD,
   },
@@ -757,7 +757,7 @@ const styles = StyleSheet.create({
   },
   selectedWeightImage: {
     borderWidth: 2,
-    borderColor: INK,
+    
     opacity: 1,
   },
  
@@ -767,7 +767,7 @@ const styles = StyleSheet.create({
     height: '100%'
   },
   modalContentContainer: {
-    backgroundColor: '#FFFFFF',
+    
     margin: 24,
     padding: 20,
     borderRadius: 12,
@@ -783,7 +783,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   dropdownContainer:{
-    backgroundColor: '#FFFFFF',
+    
     marginTop: 80,
     marginHorizontal: 24,
     padding: 16,
@@ -798,6 +798,8 @@ const styles = StyleSheet.create({
   },
     icon : {
 width:30,
-height: 30
+height: 30,
+backgroundColor: '#ffffff',
+borderRadius: 8
   }
 });

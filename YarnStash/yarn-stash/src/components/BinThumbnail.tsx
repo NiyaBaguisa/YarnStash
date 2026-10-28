@@ -1,9 +1,10 @@
-import { Text, View, ScrollView, StyleSheet, Pressable } from "react-native";
+import { Text, View, useColorScheme, ScrollView, StyleSheet, Pressable } from "react-native";
 import YarnThumbnail from "./YarnThumbnail";
 import YarnMiniThumbnail from "./YarnMiniThumbnail";
 import { useSQLiteContext } from "expo-sqlite";
 import { useEffect, useState } from "react";
 import EditBins from "./EditBins";
+import { colors } from "@/colors";
 
 interface Yarn {
   id: number;
@@ -35,6 +36,10 @@ interface Bin {
 }
 // takes in an array of yarns and a label for the bin
 export default function BinThumbnail({ id, title, pressedBin, setPressedBin, onBinDeleted }: binThumbnailProps) {
+  const systemTheme =useColorScheme();
+    const theme = systemTheme === "dark"? "dark": 'light';
+     const activeColors = colors[theme];
+     
   //modal visibilty state
   const [modalVisible, setModalVisible] = useState(false);
   //state for the list of yarn items
@@ -74,9 +79,9 @@ export default function BinThumbnail({ id, title, pressedBin, setPressedBin, onB
   }
   // show the first four yarn thumbnails in a flex grid
   return (
-    <Pressable style={styles.container} onPress={handlePress} onLongPress={handleLongPress}>
-      <Text style={styles.title}>{title}</Text>
-      <Text style={styles.skeins}>
+    <Pressable style={[styles.container, { backgroundColor: activeColors.bg, borderColor: activeColors.outline}]} onPress={handlePress} onLongPress={handleLongPress}>
+      <Text style={[styles.title,{color: activeColors.text} ]}>{title}</Text>
+      <Text style={[styles.skeins,{color: activeColors.text}]}>
         <Text style={styles.skeinCount}>{items.length}</Text>
         {" "}{items.length === 1 ? "skein" : "skeins"}
       </Text>
@@ -103,9 +108,9 @@ const FONT_BOLD = "Comfortaa_700Bold";
 const styles = StyleSheet.create({
   container:{
   width:'95%',
-  backgroundColor: WHITE,
+ 
   borderWidth: BORDER,
-  borderColor: OUTLINE,
+ 
   borderRadius: RADIUS,
   paddingHorizontal: 16,
   paddingVertical: 14,
@@ -115,12 +120,12 @@ const styles = StyleSheet.create({
   fontSize: 28,
   lineHeight: 34,
   fontFamily: FONT_REGULAR,
-  color: INK,
+ 
  },
  skeins:{
   fontSize: 16,
   fontFamily: FONT_REGULAR,
-  color: INK,
+  
  },
 skeinCount:{
   fontFamily: FONT_BOLD,

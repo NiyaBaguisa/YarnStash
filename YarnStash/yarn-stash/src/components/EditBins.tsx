@@ -1,8 +1,8 @@
 import { useSQLiteContext } from 'expo-sqlite';
 import { useEffect ,useState} from 'react'; 
-import { View, Text, Pressable, Modal, StyleSheet} from 'react-native';
+import { View, Text, useColorScheme, Pressable, Modal, StyleSheet} from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-
+import { colors } from '@/colors';
 
 interface Bin{
     id: number,
@@ -116,7 +116,10 @@ function closeModal(){
 </SafeAreaProvider>
  );
 
-}
+} const systemTheme =useColorScheme();
+  const theme = systemTheme === "dark"? "dark": 'light';
+   const activeColors = colors[theme];
+   
 
 const INK = '#222222';
 const OUTLINE = '#000000';

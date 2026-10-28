@@ -1,10 +1,9 @@
-import { View, FlatList, StyleSheet, Text, Pressable } from 'react-native';
+import { useColorScheme, FlatList, StyleSheet, Text, Pressable } from 'react-native';
 import {useState, useEffect} from 'react';
 import BinThumbnail from "./BinThumbnail";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import EmptyData from './Splash/EmptyData';
-//TO DO: Pass pressed bin state to edit bins component
-
+import { colors } from '@/colors';
 interface Bin{
     id: number,
     title: string
@@ -20,14 +19,17 @@ interface GridViewProps{
 
 export default function BinsGridView({data, pressedBin, setPressedBin, onBinDeleted} : GridViewProps){
 
-
+      const systemTheme =useColorScheme();
+      const theme = systemTheme === "dark"? "dark": 'light';
+       const activeColors = colors[theme];
+      
 
 
 //map bins as Bin thumbnails
     return (
         <SafeAreaView style={styles.container}>
-            <Text>Long press to delete a bin</Text>
-            <Text style={styles.header}>{data.length} Bins</Text>
+            <Text style={{color: activeColors.text}}>Long press to delete a bin</Text>
+            <Text style={[styles.header, {color: activeColors.text}]}>{data.length} Bins</Text>
               <FlatList
       data={data}
       ListEmptyComponent={<EmptyData />}

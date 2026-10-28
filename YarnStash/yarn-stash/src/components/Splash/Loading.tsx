@@ -1,12 +1,16 @@
 import React, { useEffect, useRef } from 'react';
-import { Animated, Easing, StyleSheet, Text, View } from 'react-native';
+import { Animated, useColorScheme, Easing, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
- 
+ import { colors } from '@/colors';
 const DOT_COLORS = ['#00A0D6', '#6A4028', '#FC8DA1'];
 // When each dot pops in, as a fraction of the loop (0 → 1)
 const DOT_STARTS = [0.05, 0.22, 0.39];
  
 export default function Loading() {
+    const systemTheme =useColorScheme();
+    const theme = systemTheme === "dark"? "dark": 'light';
+     const activeColors = colors[theme];
+     
   const spin = useRef(new Animated.Value(0)).current;
   const dots = useRef(new Animated.Value(0)).current;
  
@@ -52,7 +56,7 @@ export default function Loading() {
     });
  
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, {backgroundColor: activeColors.bg}]}>
       <Animated.Image
         source={require('../../../assets/images/default-img.png')}
         style={[styles.ball, { transform: [{ rotate }] }]}
@@ -60,7 +64,7 @@ export default function Loading() {
       />
  
       <View style={styles.row}>
-        <Text style={styles.text}>Loading</Text>
+        <Text style={[styles.text, {color: activeColors.text}]}>Loading</Text>
         {DOT_STARTS.map((start, i) => (
           <Animated.Text
             key={i}
@@ -79,7 +83,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FFFFFF',
+    
   },
   ball: {
     width: 120,
@@ -93,7 +97,7 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#111111',
+   
   },
   dot: {
     fontSize: 28,

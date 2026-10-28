@@ -1,13 +1,16 @@
 import React, { useEffect, useRef } from 'react';
-import { Animated, Easing, Image, StyleSheet, Text, View } from 'react-native';
+import { Animated, Easing, useColorScheme, Image, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
+import { colors } from '@/colors';
 
 
 export default function EmptyData() {
   const float = useRef(new Animated.Value(0)).current; // yarn ball bob
   const nudge = useRef(new Animated.Value(0)).current; // arrow toward the + button
-
+const systemTheme =useColorScheme();
+  const theme = systemTheme === "dark"? "dark": 'light';
+   const activeColors = colors[theme];
+   
   useEffect(() => {
     const loop = (value: Animated.Value, distance: number, duration: number) =>
       Animated.loop(
@@ -48,8 +51,8 @@ export default function EmptyData() {
         />
     
 
-      <Text style={styles.title}>Nothing to see here!</Text>
-      <Text style={styles.message}>Add a new yarn to your stash using the plus button below!</Text>
+      <Text style={[styles.title, {color: activeColors.text}]}>Nothing to see here!</Text>
+      <Text style={[styles.message,{color: activeColors.text}]}>Add a new yarn to your stash using the plus button below!</Text>
 
       <Animated.Text style={[styles.arrow, { transform: [{ translateY: nudge }] }]}>
         ↓
@@ -57,7 +60,7 @@ export default function EmptyData() {
     </SafeAreaView>
   );
 }
-const INK = '#222222';
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -74,14 +77,14 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 26,
     fontWeight: '800',
-    color: INK,
+    
     textAlign: 'center',
     marginBottom: 10,
   },
   message: {
     fontSize: 16,
     lineHeight: 23,
-    color: INK,
+    
     textAlign: 'center',
     maxWidth: 280,
   },

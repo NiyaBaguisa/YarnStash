@@ -1,13 +1,19 @@
-import { View, Text, Image, Pressable, Modal, StyleSheet } from "react-native";
+import { View, Text, Image, Pressable,useColorScheme, Modal, StyleSheet } from "react-native";
 import QRCode from 'react-native-qrcode-svg';
 import { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { colors } from "@/colors";
+
 interface QRGeneratorProps {
     binId?: number // link to bin page
 }
 
 export default function QRGenerator({binId}: QRGeneratorProps){
-    //is the qrcode modal showing?
+   const systemTheme =useColorScheme();
+    const theme = systemTheme === "dark"? "dark": 'light';
+     const activeColors = colors[theme];
+       
+  //is the qrcode modal showing?
 const [visible, setVisible] = useState(false);
 
 //if the bin has been deleted
@@ -31,7 +37,7 @@ if(binId === undefined){
          animationType="fade"
          onRequestClose={()=>setVisible(false)}>
                 <View style={styles.overlay}>
-                    <View style={styles.card}>
+                    <View style={[styles.card, { borderColor: activeColors.outline,}]}>
                         
                         <QRCode
 value={`${binId}`}
@@ -41,8 +47,8 @@ backgroundColor="white"/>
 
             <Pressable
         onPress={() => setVisible(false)}
-        style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}>
-        <Text style={styles.buttonText}>Close</Text>
+        style={({ pressed }) => [styles.button,{  backgroundColor: activeColors.text}, pressed && [styles.buttonPressed,{  backgroundColor: activeColors.pressed}]]}>
+        <Text style={[styles.buttonText,{color: activeColors.buttonText}]}>Close</Text>
       </Pressable>
 
 
@@ -60,7 +66,9 @@ const FONT_BOLD = "Comfortaa_700Bold";
 const styles = StyleSheet.create({
       icon : {
 width:30,
-height: 30
+height: 30,
+backgroundColor: '#ffffff',
+borderRadius: 8,
   },
 overlay: {
   flex: 1,
@@ -68,26 +76,27 @@ overlay: {
   justifyContent: "center",
   backgroundColor: "rgba(0,0,0,0.45)",
 },
+
 card: {
-  backgroundColor: "#FFFFFF",
+  
   borderWidth: 4,
-  borderColor: "#000000",
+ backgroundColor:'#ffffff',
   borderRadius: 24,
   padding: 24,
   alignItems: "center",
 },
 button: {
   marginTop: 20,
-  backgroundColor: "#000000",
+
   borderRadius: 8,
   paddingVertical: 10,
   paddingHorizontal: 28,
 },
 buttonPressed: {
-  backgroundColor: "#5B9FD3",
+ 
 },
 buttonText: {
-  color: "#FFFFFF",
+  
   fontSize: 15,
   fontFamily: FONT_BOLD,
 },})

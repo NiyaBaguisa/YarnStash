@@ -1,4 +1,4 @@
-import { View, Alert} from 'react-native';
+import { useColorScheme, StyleSheet, Alert,} from 'react-native';
 import {useState, useEffect, useCallback, useMemo,} from 'react';
 import { useFocusEffect, useRouter, useLocalSearchParams } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import BinExpandedView from "@/components/BinExpandedView";
 import BinsGridView from '@/components/BinsGridView';
 
+import { colors } from '@/colors';
 
 interface Bin{
     id: number;
@@ -13,6 +14,10 @@ interface Bin{
 
 }
 export default function Bins() {
+    const systemTheme =useColorScheme();
+    const theme = systemTheme === "dark"? "dark": 'light';
+     const activeColors = colors[theme];
+     
     // keep track of screen state
     // null / falsy = show grid of bin thumbnails
     // truthy show selected bin
@@ -98,7 +103,7 @@ Alert.alert('Bin not found', 'This QR code points to a bin that no longer exists
     
       
     return(
-        <SafeAreaView>
+        <SafeAreaView style={[{backgroundColor: activeColors.bg}, StyleSheet.absoluteFill]}>
            {isBinSelected? <BinExpandedView pressedBin={pressedBin} setPressedBin={setPressedBin} isBinSelected={isBinSelected} setIsBinSelected={setIsBinSelected}/>: <BinsGridView data={binsList} pressedBin={pressedBin} setPressedBin={setPressedBin} onBinDeleted={loadBinList}/>} 
         
         </SafeAreaView>

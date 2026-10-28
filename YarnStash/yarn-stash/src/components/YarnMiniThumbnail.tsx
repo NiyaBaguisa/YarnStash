@@ -1,6 +1,6 @@
 // this is where the boxes for the yarn is made and then the bins and the horizontal scroll bars will just take in this component
-import { Text, View,Image,  StyleSheet } from "react-native";
-//import {ReactComponent as DefaultImage} from '@/assets/images/yarn-stash-yarn-ball-icon.svg';
+import { useColorScheme, View,Image,  StyleSheet } from "react-native";
+import { colors } from "@/colors";
 // type for yarn object
 interface Yarn{
     id: number;
@@ -18,11 +18,14 @@ interface Yarn{
 
 
 export default function YarnMiniThumbnail(item: Yarn){
-
+ const systemTheme =useColorScheme();
+  const theme = systemTheme === "dark"? "dark": 'light';
+   const activeColors = colors[theme];
+   
   const weights: string[] = ['Lace', 'Super Fine', 'Fine', 'Light', 'Medium', 'Bulky', 'Super Bulky', 'Jumbo'];
   const weightDisplay = `${item.weight} ${weights.indexOf(item.weight)}`
     return(
-        <View style={styles.thumbnailContainer}>
+        <View style={[styles.thumbnailContainer, {backgroundColor: activeColors.bg}]}>
         
             {item.image ? (
               <Image style={styles.image} source={{ uri: item.image}} />
@@ -40,7 +43,7 @@ const styles = StyleSheet.create({
   thumbnailContainer:{
   width: 90,
   height: 90,
-  backgroundColor: '#f5f5f5',
+  
     alignItems: 'center',
     overflow: 'hidden',
     margin: 5

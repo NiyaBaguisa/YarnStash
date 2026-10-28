@@ -1,8 +1,6 @@
 import { useCallback, useState, Dispatch, SetStateAction } from "react";
-
-import { StyleSheet, View, Text, TextInput, Keyboard, Pressable} from "react-native";
-//TO DO: ADD CHIP STYLES
-
+import { StyleSheet, useColorScheme, View, Text, TextInput, Keyboard, Pressable} from "react-native";
+import { colors } from "@/colors";
 
 interface ChipInputProps {
     chips: string[];
@@ -10,6 +8,9 @@ interface ChipInputProps {
      onBlur?: ()=> void;
      }
 export default function ChipInput({chips, setChips, onBlur}: ChipInputProps){
+    const systemTheme =useColorScheme();
+  const theme = systemTheme === "dark"? "dark": 'light';
+   const activeColors = colors[theme];
    
     //value of current chip
     const [chipVal, setChipVal] = useState("");
@@ -33,9 +34,10 @@ function handleDelete(chip: string){
 
     function chipsDisplay(){
    return chips.map((chip: string) => (
-      <Pressable  key ={chip} onPress={() => handleDelete(chip)} style={styles.chip}>
-        <Text>{chip}</Text>
-        <Text> X</Text>
+      <Pressable  key ={chip} style={({ pressed }) => [styles.chip, pressed && styles.chipPressed]}
+      onPress={() => handleDelete(chip)} >
+        <Text style={[styles.chipText, { color: activeColors.text }]}>{chip}</Text>
+        <Text style={[styles.chipX, { color: activeColors.text }]}> X</Text>
       </Pressable>
     ));
   }
@@ -43,17 +45,17 @@ function handleDelete(chip: string){
 
     return(
         <View>
-            <Text>Yarn Fiber Content</Text>
+            <Text style={{color: activeColors.text}}>Yarn Fiber Content</Text>
             <TextInput
                         placeholder="Fiber"
                           placeholderTextColor="#999999"
                         onChangeText={setChipVal}
                         value={chipVal}
-                        style={styles.input}
+                        style={[styles.input,{color: activeColors.text, backgroundColor: activeColors.bg, borderColor: activeColors.outline}]}
                         onSubmitEditing={handleNewChip}
                         onBlur={onBlur}
                       />
-                      <View>
+                      <View style={styles.chipRow}>
                         {chipsDisplay()}
                       </View>
         </View>
@@ -64,14 +66,39 @@ function handleDelete(chip: string){
 const styles = StyleSheet.create({
 
   input: {
-    backgroundColor: '#F5F5F5',
-    color: '#333333',
+    
     height: 50,
     borderWidth: 1,
     borderRadius: 50,
     paddingHorizontal: 16,
  
   },
-chip:{
-
-}})
+  chipRow: {
+  flexDirection: "row",
+  flexWrap: "wrap",
+  gap: 8,
+  marginTop: 8,
+},
+chip: {
+  flexDirection: "row",
+  alignItems: "center",
+  gap: 8,
+  paddingVertical: 6,
+  paddingHorizontal: 14,
+  borderRadius: 50,
+  borderWidth: 1,
+  borderColor: "rgba(128,128,128,0.35)",
+  backgroundColor: "rgba(128,128,128,0.15)",
+},
+chipPressed: {
+  opacity: 0.6,
+},
+chipText: {
+  fontSize: 14,
+},
+chipX: {
+  fontSize: 11,
+  fontWeight: "700",
+  opacity: 0.6,
+},
+})

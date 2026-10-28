@@ -1,5 +1,5 @@
 
-import { TextInput, View, ScrollView, Modal,Pressable, ActivityIndicator, StyleSheet, Button, Text, Image, Alert, FlatList, ImageSourcePropType } from 'react-native';
+import { TextInput, View, ScrollView, useColorScheme, StyleSheet, Button, Text, Image, Alert, FlatList, ImageSourcePropType } from 'react-native';
 import {useState, useEffect, useCallback} from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
@@ -8,7 +8,7 @@ import TopMatches from '@/components/TopMatches';
 import Loading from '@/components/Splash/Loading';
 import { reset } from 'expo-router/build/react-navigation/routers/CommonActions';
 import ScannerUI from '@/components/Splash/ScannerUI';
-
+import { colors } from '@/colors';
 
 // define what a search result yarn looks like
 type RavelrySearchResult = {
@@ -35,6 +35,7 @@ interface ScannedYarnData {
   skeins: string;
 }
 export default function UPCScan(){
+  
     //Camera states
     const [facing, setFacing] = useState<CameraType>('back');
 const [permission, requestPermission] = useCameraPermissions();

@@ -1,4 +1,4 @@
-import { Text, View, StyleSheet, ScrollView, Image, Button, FlatList, TextInput, Pressable } from "react-native";
+import { Text, View, StyleSheet, useColorScheme, ScrollView, Image, Button, FlatList, TextInput, Pressable } from "react-native";
 import { Link, useFocusEffect } from "expo-router";
 import { useState, useEffect, useCallback } from 'react';
 import { useSQLiteContext } from "expo-sqlite";
@@ -7,6 +7,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Animated } from "react-native";
 import QRScanner from "@/components/QRScanner";
 import EmptyData from "@/components/Splash/EmptyData";
+import {colors} from "../../colors";
 
 interface DBYarn {
   id: number;
@@ -39,6 +40,10 @@ active : boolean
 }
 */
 export default function Index() {
+  const systemTheme =useColorScheme();
+  const theme = systemTheme === "dark"? "dark": 'light';
+   const activeColors = colors[theme];
+   
   //yarn items data
   const [items, setItems] = useState<DBYarn[]>([])
   //conditional rendering , false for list view, true for yarn detailed view
@@ -52,8 +57,7 @@ export default function Index() {
   const db = useSQLiteContext();
   //filtered items
   const [filteredItems, setFilteredItems] = useState<DBYarn[]>([])
-  // fiber filter
-  const [fiberFilters, setFiberFilters] = useState<string[]>([])
+  
   // color filter
   const [colorFilters, setColorFilters] = useState<string[]>([])
   //brand filter
@@ -117,8 +121,8 @@ export default function Index() {
         <Pressable
           key={name}
           onPress={() => toggleFilter(name)}
-          style={[styles.chip, isActive && styles.chipActive]}>
-          <Text>{name}</Text>
+          style={[[styles.chip, {borderColor: activeColors.outline, backgroundColor: activeColors.bg}], isActive && [styles.chipActive,{backgroundColor: activeColors.pressed}]]}>
+          <Text style={{color: activeColors.text}}>{name}</Text>
         </Pressable>
       )
     })
@@ -151,7 +155,7 @@ export default function Index() {
   if (filterList.length === 0) return null;
   return (
     <View style={styles.filterRow}>
-      <Text style={styles.filterLabel}>{label}</Text>
+      <Text style={[styles.filterLabel, { color: activeColors.text}]}>{label}</Text>
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         {filterRenderItem(filterList)}
       </ScrollView>
@@ -160,16 +164,16 @@ export default function Index() {
 }
 
   return (
-    <SafeAreaView style={styles.screen}>
+    <SafeAreaView style={[styles.screen, {backgroundColor: activeColors.bg}]}>
       <View style={styles.content}>
 
-        <Text style={styles.title}>My Stash</Text>
-        <Text style ={styles.subtitle}>{items.length} Skeins</Text>
+        <Text style={[styles.title, { color: activeColors.text}]}>My Stash</Text>
+        <Text style ={[styles.subtitle, { color: activeColors.text}]}>{items.length} Unique Skeins</Text>
 
         <View style={styles.searchRow}>
-          <View style={styles.searchBox}>
+          <View style={[styles.searchBox,{ borderColor: activeColors.outline}]}>
              <TextInput
-            style={styles.input}
+            style={[styles.input,{ color: activeColors.text,}]}
             onChangeText={setText}
             value={text} 
             placeholder ="Search Stash..."/>
@@ -213,7 +217,6 @@ const FONT_BOLD = "Comfortaa_700Bold";
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: BG,
   },
   content: {
     flex: 1,
@@ -225,12 +228,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontFamily: FONT_BOLD,
-    color: INK,
+   
   },
   subtitle: {
     fontSize: 18,
     fontFamily: FONT_REGULAR,
-    color: INK,
     marginBottom: 16,
   },
  
@@ -246,7 +248,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     height: 44,
     borderWidth: 2,
-    borderColor: INK,
+   
     borderRadius: 22,
     paddingHorizontal: 16,
     marginRight: 12,
@@ -255,7 +257,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     fontFamily: FONT_REGULAR,
-    color: INK,
+   
   },
  
   // ---- filters ----
@@ -271,25 +273,21 @@ const styles = StyleSheet.create({
     width: 64,
     fontSize: 14,
     fontFamily: FONT_REGULAR,
-    color: INK,
+   
   },
   chip: {
     paddingHorizontal: 14,
     paddingVertical: 6,
     borderWidth: 1,
-    borderColor: INK,
+   
     borderRadius: 8,
-    backgroundColor: BG,
+  
     marginRight: 8,
   },
   chipActive: {
-    backgroundColor: CHIP_ACTIVE,
+    
   },
-  chipText: {
-    fontSize: 12,
-    fontFamily: FONT_BOLD,
-    color: "#333333",
-  },
+ 
  
   // ---- thumbnail list ----
   list: {

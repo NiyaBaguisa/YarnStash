@@ -1,9 +1,9 @@
 // this is where the boxes for the yarn is made and then the bins and the horizontal scroll bars will just take in this component
-import { Text, View, Image, Pressable, StyleSheet } from "react-native";
+import { Text, View, Image, Pressable, StyleSheet, useColorScheme } from "react-native";
 import EditYarn from "./EditYarn";
 import { useState, useEffect } from "react";
 import { useSQLiteContext } from "expo-sqlite";
-
+import { colors } from "@/colors";
 // type for yarn object
 interface Yarn {
   id: number;
@@ -35,7 +35,10 @@ interface YarnThumbnailProps {
 }
 
 export default function YarnThumbnail({ item, isYarnSelected, setIsYarnSelected, selectedYarn, setSelectedYarn, onYarnDeleted }: YarnThumbnailProps) {
-
+ const systemTheme =useColorScheme();
+  const theme = systemTheme === "dark"? "dark": 'light';
+   const activeColors = colors[theme];
+   
   const weights: string[] = ['Lace', 'Super Fine', 'Fine', 'Light', 'Medium', 'Bulky', 'Super Bulky', 'Jumbo'];
 
   //modal visibilty state
@@ -87,7 +90,7 @@ setCurrentSkein(prev=> prev -1);
 
 
       <View style={styles.thumbnailContainer}>
-        <View style={styles.thumbnail}>
+        <View style={[styles.thumbnail, {borderColor: activeColors.outline, backgroundColor: activeColors.bg}]}>
           <View style={styles.imageArea}>
               {item.image ? (
             <Image style={styles.image} source={{ uri: item.image }} />
@@ -100,19 +103,19 @@ setCurrentSkein(prev=> prev -1);
         </View>
         {/*insert weight image here*/}
 
-        <View style={[styles.detailsContainer, { backgroundColor: item.color.toLowerCase().trim() || FALLBACK_COLOR }]}>
+        <View style={[styles.detailsContainer, { backgroundColor: item.color.toLowerCase().trim() || FALLBACK_COLOR , borderColor: activeColors.outline}]}>
           <View style = {styles.textBlock}>
-            <Text style={styles.text} >{item.brandName}</Text>
-            <Text style={[styles.text, styles.yarnName]}>{item.yarnName}</Text>
-            <Text style={styles.text} >{item.colorWay}</Text>
-            <Text style={styles.text} >{JSON.parse(item.fiber).join(", ")}</Text>
+            <Text style={[styles.text,{ color: activeColors.text}]} >{item.brandName}</Text>
+            <Text style={[styles.text, styles.yarnName, {color: activeColors.text}]}>{item.yarnName}</Text>
+            <Text style={[styles.text,{ color: activeColors.text}]} >{item.colorWay}</Text>
+            <Text style={[styles.text,{ color: activeColors.text}]} >{JSON.parse(item.fiber).join(", ")}</Text>
           </View>
          
          <View style = {styles.counterRow}>
           <Pressable onPress={increment}>
             <Text>+</Text>
           </Pressable>
-             <Text style={styles.skeinCount}>{currentSkein}</Text>
+             <Text style={[styles.skeinCount,{ color: activeColors.text}]}>{currentSkein}</Text>
              <Pressable onPress={decrement}>
             <Text>-</Text>
           </Pressable>
@@ -129,10 +132,8 @@ setCurrentSkein(prev=> prev -1);
   )
 }
 
-const INK = "#222222";
-const OUTLINE = "#000000";
+
 const FALLBACK_COLOR = "#D9D9D9"; // used only if a yarn has no color value
-const WHITE = "#FFFFFF"; // white text will be based on color
 const BORDER = 4;
 const RADIUS = 20;
 const FONT_REGULAR = "Comfortaa_400Regular";
@@ -147,9 +148,9 @@ const styles = StyleSheet.create({
   },
   thumbnail: {
        flex: 1,
-    backgroundColor: WHITE,
+    
     borderWidth: BORDER,
-    borderColor: OUTLINE,
+   
     borderRadius: RADIUS,
     overflow: "hidden",
     padding: 10,
@@ -161,7 +162,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     width: "60%",
     borderWidth: BORDER,
-    borderColor: OUTLINE,
+    
     borderRadius: RADIUS,
     paddingVertical: 8,
     paddingHorizontal: 10,
@@ -185,7 +186,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     lineHeight: 19,
     fontFamily: FONT_REGULAR,
-    color: INK,
+   
     textAlign: "center",
   },
   yarnName: {
@@ -201,7 +202,7 @@ const styles = StyleSheet.create({
   skeinCount: {
     fontSize: 22,
     fontFamily: FONT_BOLD,
-    color: INK,
+   
   },
 
 });

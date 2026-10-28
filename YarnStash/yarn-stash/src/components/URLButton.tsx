@@ -1,8 +1,8 @@
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import {useCallback} from 'react';
-import {Alert, Pressable, Text, Linking, StyleSheet, } from 'react-native';
-
+import {Alert, useColorScheme, Pressable, Text, Linking, StyleSheet, } from 'react-native';
+import { colors } from "@/colors";
 
 
 type OpenURLButtonProps = {
@@ -11,6 +11,10 @@ type OpenURLButtonProps = {
 };
 
 export default function URLButton({url, children}: OpenURLButtonProps) {
+   const systemTheme =useColorScheme();
+    const theme = systemTheme === "dark"? "dark": 'light';
+     const activeColors = colors[theme];
+     
   const handlePress = useCallback(async () => {
     // Checking if the link is supported for links with custom URL scheme.
     const supported = await Linking.canOpenURL(url);
@@ -26,14 +30,12 @@ export default function URLButton({url, children}: OpenURLButtonProps) {
 
   return <Pressable
           onPress={handlePress}
-          style={({ pressed }) => [styles.button, styles.submitButton, pressed && styles.buttonPressed]}>
-          <Text style={styles.buttonText}>{children}</Text>
+          style={({ pressed }) => [styles.button,{backgroundColor: activeColors.text}, styles.submitButton, pressed && [styles.buttonPressed, { backgroundColor: activeColors.pressed}]}>
+          <Text style={[styles.buttonText, {color: activeColors.buttonText}]}>{children}</Text>
         </Pressable>;
 };
 
-const BG = '#FFFFFF';
-const FIELD_BORDER = '#D0D0D0';
-const BUTTON = '#000000';
+
 const BUTTON_PRESSED = '#5B9FD3';
 const FONT_BOLD = 'Comfortaa_700Bold';
 const styles = StyleSheet.create({
@@ -43,16 +45,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignSelf: 'center',
     gap: 8,
-    backgroundColor: BUTTON,
+    
     borderRadius: 8,
     paddingVertical: 10,
     paddingHorizontal: 20,
   },
   buttonPressed: {
-    backgroundColor: BUTTON_PRESSED,
+   
   },
   buttonText: {
-    color: '#FFFFFF',
+    
     fontSize: 15,
     fontFamily: FONT_BOLD,
   },

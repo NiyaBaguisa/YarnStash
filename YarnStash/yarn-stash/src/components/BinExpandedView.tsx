@@ -1,9 +1,9 @@
-import { View, FlatList, StyleSheet, Pressable, Text } from 'react-native';
+import { View, FlatList, StyleSheet,useColorScheme, Pressable, Text } from 'react-native';
 import {useState, useEffect} from 'react';
 import YarnThumbnail from "@/components/YarnThumbnail";
 import { useSQLiteContext } from "expo-sqlite";
 import { SafeAreaView } from 'react-native-safe-area-context';
-import YarnDetails from './YarnDetails';
+import { colors } from '@/colors';
 import EmptyData from './Splash/EmptyData';
 import QRGenerator from './QRGenerator';
 
@@ -37,6 +37,10 @@ interface ExpandedViewProps{
 }
 
 export default function BinExpandedView({pressedBin, setPressedBin, isBinSelected, setIsBinSelected }: ExpandedViewProps) {
+      const systemTheme =useColorScheme();
+      const theme = systemTheme === "dark"? "dark": 'light';
+       const activeColors = colors[theme];
+       
 //conditional rendering , false for list view, true for yarn detailed view
 const [isYarnSelected , setIsYarnSelected] = useState<boolean>(false);
 //data for selected yarn held in this state
@@ -66,13 +70,13 @@ const [selectedYarn, setSelectedYarn] = useState<Yarn>();
         setPressedBin(undefined);
     }
     return(
-        <SafeAreaView style={styles.container} >
+        <SafeAreaView style={[styles.container, {backgroundColor: activeColors.bg}]} >
              
-             <View>
+             <View style={styles.header}>
             <Pressable onPress={handleBack}>
-               <Text>Back Button</Text>
+               <Text style={{color: activeColors.text, fontSize: 36}}>←</Text>
             </Pressable>
-<Text style={styles.header}>{pressedBin?.title}</Text>
+<Text style={[styles.title,{color: activeColors.text}]}>{pressedBin?.title}</Text>
 <QRGenerator binId={pressedBin?.id}/>
            </View>
            
@@ -96,8 +100,20 @@ const [selectedYarn, setSelectedYarn] = useState<Yarn>();
    alignItems: 'center'
   
   },
-  header:{
-     fontSize: 36
+  
+    header: {
+    flexDirection: 'row',
+    width: `100%`,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingTop: 8,
+    paddingBottom: 12,
+  },
+  title: {
+    fontSize: 24,
+    
+   
   }
    
  });

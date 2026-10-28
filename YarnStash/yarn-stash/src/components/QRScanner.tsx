@@ -1,14 +1,17 @@
 
-import { TextInput, View, ScrollView, Modal,Pressable, ActivityIndicator, StyleSheet, Button, Text, Image, Alert, FlatList, ImageSourcePropType } from 'react-native';
+import { useColorScheme, View, ScrollView, Modal,Pressable, ActivityIndicator, StyleSheet, Button, Text, Image, Alert, FlatList, ImageSourcePropType } from 'react-native';
 import {useState, useEffect, useCallback} from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import ScannerUI from '@/components/Splash/ScannerUI';
-
-
+import ScannerUI from '@/components/Splash/ScannerUI'
+import { colors } from '@/colors';
 
 export default function QRScanner(){
+  const systemTheme =useColorScheme();
+    const theme = systemTheme === "dark"? "dark": 'light';
+     const activeColors = colors[theme];
+     
     //Camera states
     const [facing, setFacing] = useState<CameraType>('back');
 const [permission, requestPermission] = useCameraPermissions();
@@ -50,7 +53,7 @@ useFocusEffect(
         return(
             <View >
         <Text>We need your permission to show the camera</Text>
-        <Pressable style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]} onPress={requestPermission}>
+        <Pressable style={({ pressed }) => [styles.button, pressed &&[styles.buttonPressed, { backgroundColor: activeColors.pressed}]]} onPress={requestPermission}>
           <Text>Request permission</Text>
         </Pressable>
       </View>
@@ -95,7 +98,7 @@ useFocusEffect(
            <ScannerUI title="QR Code"/>
          
           <Pressable onPress={() => setVisible(false)} style={{ position: 'absolute', top: 60, left: 20 }}>
-            <Text style={{ color: 'white' }}>Close</Text>
+            <Text style={{ color: activeColors.buttonText }}>Close</Text>
           </Pressable>
         </SafeAreaView>
 
@@ -107,7 +110,7 @@ useFocusEffect(
 
 }
 const BUTTON = '#000000';
-const BUTTON_PRESSED = '#5B9FD3'; // blue pressed state from Figma
+
 const FONT_BOLD = 'Comfortaa_700Bold';
 
 const styles = StyleSheet.create({
@@ -131,20 +134,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 64,
   },
  
-  text: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: 'white',
-  },
-  loadingContainer: {
-    flex: 1,
-    backgroundColor: "ffffff",
-    justifyContent: "center",
-    alignItems: "center"
-  },
   icon : {
 width:30,
-height: 30
+height: 30,
+borderRadius:8,
+backgroundColor: '#ffffff',
   },
    button: {
     flexDirection: 'row',
@@ -158,11 +152,7 @@ height: 30
     paddingHorizontal: 20,
   },
   buttonPressed: {
-    backgroundColor: BUTTON_PRESSED,
+
   },
-  buttonText: {
-    color: '#FFFFFF',
-    fontSize: 15,
-    fontFamily: FONT_BOLD,
-  },
+ 
 });
