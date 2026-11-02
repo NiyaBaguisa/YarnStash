@@ -112,8 +112,14 @@ const [selectedYarn, setSelectedYarn] = useState<Yarn>();
   },
   title: {
     fontSize: 24,
-    
+    fontFamily: "Quicksand-VariableFont_wght"
    
-  }
+  },
+   iconContainer: {
+    borderRadius: 8,
+    backgroundColor: "white",
+    padding: 4,
+
+  },
    
  });

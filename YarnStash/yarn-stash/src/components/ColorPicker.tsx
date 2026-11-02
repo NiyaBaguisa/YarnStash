@@ -3,7 +3,6 @@ import { View, useColorScheme, Text, Pressable, Modal, ScrollView, StyleSheet } 
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '@/colors';
 // Every shade is a valid CSS color keyword, so it can be used directly as
-// backgroundColor in React Native and still passes isCssColor().
 
    
 export type ColorFamily = {
@@ -72,7 +71,7 @@ export default function ColorPicker({ value, onChange, onBlur, hasError }: Color
         style={[[styles.field,{backgroundColor: activeColors.bg, borderColor: activeColors.outline}], hasError && styles.fieldError]}
       >
         <View style={[styles.previewDot, { backgroundColor: selected || 'transparent' }]} />
-        <Text style={selected ? {color: activeColors.text} : styles.placeholder}>
+        <Text style={selected ? {color: activeColors.text, fontFamily: "Comfortaa-VariableFont_wght"} : [styles.placeholder,{fontFamily: "Comfortaa-VariableFont_wght"}]}>
           {selected || 'Choose a color'}
         </Text>
       </Pressable>
@@ -84,7 +83,7 @@ export default function ColorPicker({ value, onChange, onBlur, hasError }: Color
             {/* stops taps inside the sheet from closing it */}
             <Pressable onPress={() => {}}>
               <Text style={[styles.title, {color: activeColors.text}]}>Yarn Color</Text>
-              <Text style={[styles.selectedName, {color: activeColors.text}]}>{selected || 'Nothing selected'}</Text>
+              <Text style={[styles.selectedName, {color: activeColors.text, fontFamily: "Comfortaa-VariableFont_wght"}]}>{selected || 'Nothing selected'}</Text>
 
               <ScrollView style={styles.scroll}>
                 {COLOR_FAMILIES.map(family => (
@@ -142,11 +141,11 @@ const styles = StyleSheet.create({
     padding: 20,
     maxHeight: '80%',
   },
-  title: { fontSize: 18, fontWeight: '600' },
+  title: { fontSize: 18,  fontFamily: "Comfortaa-VariableFont_wght" },
   selectedName: {marginTop: 4, marginBottom: 12 },
   scroll: { flexGrow: 0 },
   familyRow: { marginBottom: 14 },
-  familyName: { fontSize: 12, marginBottom: 6 },
+  familyName: { fontSize: 12, marginBottom: 6, fontFamily: "Comfortaa-VariableFont_wght" },
   shadeRow: { flexDirection: 'row', gap: 12 },
   swatch: {
     width: 52,

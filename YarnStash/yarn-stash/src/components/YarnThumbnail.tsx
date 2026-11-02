@@ -4,6 +4,8 @@ import EditYarn from "./EditYarn";
 import { useState, useEffect } from "react";
 import { useSQLiteContext } from "expo-sqlite";
 import { colors } from "@/colors";
+import convert from 'color-convert';
+
 // type for yarn object
 interface Yarn {
   id: number;
@@ -85,6 +87,16 @@ setCurrentSkein(prev=> prev +1);
 setCurrentSkein(prev=> prev -1);
   }
 
+  // handle text color
+  function handleColor(colorName: string){
+const coded =convert.keyword.hsv(colorName)
+if(coded[2] >= 50){
+  return "#000000";
+
+}else{
+  return "#ffffff"
+}
+  }
   return (
     <Pressable onLongPress={handleLongPress}>
 
@@ -105,19 +117,19 @@ setCurrentSkein(prev=> prev -1);
 
         <View style={[styles.detailsContainer, { backgroundColor: item.color.toLowerCase().trim() || FALLBACK_COLOR , borderColor: activeColors.outline}]}>
           <View style = {styles.textBlock}>
-            <Text style={[styles.text,{ color: activeColors.text}]} >{item.brandName}</Text>
-            <Text style={[styles.text, styles.yarnName, {color: activeColors.text}]}>{item.yarnName}</Text>
-            <Text style={[styles.text,{ color: activeColors.text}]} >{item.colorWay}</Text>
-            <Text style={[styles.text,{ color: activeColors.text}]} >{JSON.parse(item.fiber).join(", ")}</Text>
+            <Text style={[styles.text,{ color: handleColor(item.color.toLowerCase().trim())}]} >{item.brandName}</Text>
+            <Text style={[styles.text, styles.yarnName, {color: handleColor(item.color.toLowerCase().trim())}]}>{item.yarnName}</Text>
+            <Text style={[styles.text,{ color: handleColor(item.color.toLowerCase().trim())}]} >{item.colorWay}</Text>
+            <Text style={[styles.text,{ color: handleColor(item.color.toLowerCase().trim())}]} >{JSON.parse(item.fiber).join(", ")}</Text>
           </View>
          
          <View style = {styles.counterRow}>
           <Pressable onPress={increment}>
-            <Text>+</Text>
+            <Text style={{color: handleColor(item.color.toLowerCase().trim())}}>+</Text>
           </Pressable>
-             <Text style={[styles.skeinCount,{ color: activeColors.text}]}>{currentSkein}</Text>
+             <Text style={[styles.skeinCount,{ color: handleColor(item.color.toLowerCase().trim())}]}>{currentSkein}</Text>
              <Pressable onPress={decrement}>
-            <Text>-</Text>
+            <Text style= {{color: handleColor(item.color.toLowerCase().trim())}}>-</Text>
           </Pressable>
 
          </View>
@@ -136,8 +148,7 @@ setCurrentSkein(prev=> prev -1);
 const FALLBACK_COLOR = "#D9D9D9"; // used only if a yarn has no color value
 const BORDER = 4;
 const RADIUS = 20;
-const FONT_REGULAR = "Comfortaa_400Regular";
-const FONT_BOLD = "Comfortaa_700Bold";
+
 const styles = StyleSheet.create({
   thumbnailContainer: {
    width: 320,
@@ -185,12 +196,12 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 15,
     lineHeight: 19,
-    fontFamily: FONT_REGULAR,
+    fontFamily: "Comfortaa-VariableFont_wght",
    
     textAlign: "center",
   },
   yarnName: {
-    fontFamily: FONT_BOLD,
+    fontFamily: "Comfortaa-VariableFont_wght",
   },
 
    counterRow: {
@@ -201,7 +212,7 @@ const styles = StyleSheet.create({
   },
   skeinCount: {
     fontSize: 22,
-    fontFamily: FONT_BOLD,
+    fontFamily: "Comfortaa-VariableFont_wght",
    
   },
 

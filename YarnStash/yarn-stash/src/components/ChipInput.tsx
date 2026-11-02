@@ -36,7 +36,7 @@ function handleDelete(chip: string){
    return chips.map((chip: string) => (
       <Pressable  key ={chip} style={({ pressed }) => [styles.chip, pressed && styles.chipPressed]}
       onPress={() => handleDelete(chip)} >
-        <Text style={[styles.chipText, { color: activeColors.text }]}>{chip}</Text>
+        <Text style={[styles.chipText, { color: activeColors.text, fontFamily: "Comfortaa-VariableFont_wght" }]}>{chip}</Text>
         <Text style={[styles.chipX, { color: activeColors.text }]}> X</Text>
       </Pressable>
     ));
@@ -45,13 +45,13 @@ function handleDelete(chip: string){
 
     return(
         <View>
-            <Text style={{color: activeColors.text}}>Yarn Fiber Content</Text>
+            <Text style={{color: activeColors.text, fontFamily: "Comfortaa-VariableFont_wght"}}>Yarn Fiber Content</Text>
             <TextInput
                         placeholder="Fiber"
                           placeholderTextColor="#999999"
                         onChangeText={setChipVal}
                         value={chipVal}
-                        style={[styles.input,{color: activeColors.text, backgroundColor: activeColors.bg, borderColor: activeColors.outline}]}
+                        style={[styles.input,{color: activeColors.text, backgroundColor: activeColors.bg, borderColor: activeColors.outline, fontFamily: "Comfortaa-VariableFont_wght"}]}
                         onSubmitEditing={handleNewChip}
                         onBlur={onBlur}
                       />

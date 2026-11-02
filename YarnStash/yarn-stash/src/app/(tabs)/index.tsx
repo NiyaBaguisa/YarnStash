@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { useSQLiteContext } from "expo-sqlite";
 import YarnThumbnail from "@/components/YarnThumbnail";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Animated } from "react-native";
 import QRScanner from "@/components/QRScanner";
 import EmptyData from "@/components/Splash/EmptyData";
 import {colors} from "../../colors";
@@ -34,11 +33,7 @@ type FiberRow = {
 type WeightRow = {
   weight: string;
 }
-/*interface FilterChip{
-name: string;
-active : boolean
-}
-*/
+
 export default function Index() {
   const systemTheme =useColorScheme();
   const theme = systemTheme === "dark"? "dark": 'light';
@@ -104,9 +99,9 @@ export default function Index() {
     }, [db])
   );
 
-  // toggle filter TO DO: FIX STATE MANAGEMENT 
+  
   function toggleFilter(filter: string) {
-    //filter.active = !filter.active;
+    
     setActiveFilters(prev => prev.includes(filter) ? prev.filter(name => name !== filter) : [...prev, filter])
     console.log(filter, ": toggled")
 
@@ -122,7 +117,7 @@ export default function Index() {
           key={name}
           onPress={() => toggleFilter(name)}
           style={[[styles.chip, {borderColor: activeColors.outline, backgroundColor: activeColors.bg}], isActive && [styles.chipActive,{backgroundColor: activeColors.pressed}]]}>
-          <Text style={{color: activeColors.text}}>{name}</Text>
+          <Text style={{color: activeColors.text, fontFamily: "Comfortaa-VariableFont_wght"}}>{name.toLowerCase()}</Text>
         </Pressable>
       )
     })
@@ -207,12 +202,8 @@ export default function Index() {
   );
 }
 
-const INK = "#222222";
-const BG = "#FFFFFF";
-const CHIP_BORDER = "#D0D0D0";
-const CHIP_ACTIVE = "#00a0d6";
-const FONT_REGULAR = "Comfortaa_400Regular";
-const FONT_BOLD = "Comfortaa_700Bold";
+
+
 
 const styles = StyleSheet.create({
   screen: {
@@ -227,12 +218,13 @@ const styles = StyleSheet.create({
   // ---- header ----
   title: {
     fontSize: 28,
-    fontFamily: FONT_BOLD,
+    fontFamily: "Quicksand-VariableFont_wght",
    
   },
   subtitle: {
     fontSize: 18,
-    fontFamily: FONT_REGULAR,
+    fontFamily: "Comfortaa-VariableFont_wght",
+    fontWeight: "400",
     marginBottom: 16,
   },
  
@@ -256,7 +248,7 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 14,
-    fontFamily: FONT_REGULAR,
+    fontFamily:"Comfortaa-VariableFont_wght",
    
   },
  
@@ -272,14 +264,14 @@ const styles = StyleSheet.create({
   filterLabel: {
     width: 64,
     fontSize: 14,
-    fontFamily: FONT_REGULAR,
+    fontFamily: "Comfortaa-VariableFont_wght",
    
   },
   chip: {
     paddingHorizontal: 14,
-    paddingVertical: 6,
+    paddingVertical: 4,
     borderWidth: 1,
-   
+   fontFamily: "Comfortaa-VariableFont_wght",
     borderRadius: 8,
   
     marginRight: 8,

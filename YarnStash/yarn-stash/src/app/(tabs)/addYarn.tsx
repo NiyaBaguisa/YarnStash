@@ -1,14 +1,14 @@
 import { TextInput, View, ScrollView, useColorScheme, Modal, Pressable, StyleSheet, Button, Text, Image, Alert, FlatList, ImageSourcePropType } from 'react-native';
 import { useForm, SubmitHandler, Controller, } from "react-hook-form";
 import * as ImagePicker from 'expo-image-picker';
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback  } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Link, useRouter, Tabs, useFocusEffect, useLocalSearchParams } from 'expo-router';
+import {  useRouter,  useLocalSearchParams, useFocusEffect } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
-import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
+import { useCameraPermissions } from 'expo-camera';
 import ChipInput from '@/components/ChipInput';
 import ColorPicker from '@/components/ColorPicker';
-import { isPickerColor } from '@/components/ColorPicker';
+
 import { colors } from '@/colors';
 
 type Inputs = {
@@ -179,7 +179,7 @@ export default function AddYarn() {
   const loadBinList = async () => {
     try {
       //select only unique values from bin table
-      const results = await db.getAllAsync(`SELECT * FROM bins
+      const results = await db.getAllAsync<Bin>(`SELECT * FROM bins
                 ORDER BY id DESC `);
       setBinOptions(results as Bin[])
       console.log("here are the unique values in the bins table: ", results)
@@ -191,11 +191,11 @@ export default function AddYarn() {
 
   };
 
-  useEffect(() => {
+useFocusEffect(
+  useCallback(() => {
     loadBinList();
-
-
   }, [])
+);
 
   register('binId', { validate: v => Number(v) > 0 || 'Please choose a bin' });
   register('weight', { required: 'Please choose a yarn weight' });
@@ -212,7 +212,7 @@ export default function AddYarn() {
     //on bin title press, set that bin to selected bin
     return (
       <Pressable onPress={() => handleRItemPress(item)} style={styles.dropdownItem}>
-        <Text>
+        <Text style={{fontFamily:"Comfortaa-VariableFont_wght", color: activeColors.text}}>
           {item.title}
         </Text>
       </Pressable>
@@ -241,7 +241,7 @@ export default function AddYarn() {
                 keyExtractor={(item) => item.id.toString()}
                 ListFooterComponent={
                   <Pressable onPress={handleNewBinButtonPress}>
-                    <Text>+ Add New Bin</Text>
+                    <Text style={{color: activeColors.text, fontFamily: "Comfortaa-VariableFont_wght"}}>+ Add New Bin</Text>
                   </Pressable>
                 } />
 
@@ -307,7 +307,23 @@ export default function AddYarn() {
     )
   }
 
-
+const clearForm = () => {
+  reset({
+    binId: 0,
+    image: '',
+    yarnName: '',
+    brandName: '',
+    color: '',
+    colorWay: '',
+    weight: '',
+    fiber: [],
+    skeins: '1',
+  });
+  setChips([]);
+  setImage('');
+  setSelectedBin(undefined);
+  setSelectedWeight(weights[0]);
+};
   //on submit log the data to thre console
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
     const values = [
@@ -346,7 +362,7 @@ export default function AddYarn() {
         });
 
         //clear form
-        reset();
+        clearForm();
 
         // go home
         router.push(`/(tabs)/bins`)
@@ -358,7 +374,12 @@ export default function AddYarn() {
 
 
   };
-
+useEffect(()=>{
+if (selectedBin && !binOptions.some(b => b.id === selectedBin.id)) {
+    setSelectedBin(undefined);
+    setValue('binId', 0);
+  }
+},[binOptions])
   //import data from search params to form fields
 
   useEffect(() => {
@@ -454,6 +475,7 @@ export default function AddYarn() {
          <Pressable
           disabled={!permission?.granted}
           onPress={() => router.push('/upcscan')}
+          style={styles.iconContainer}
         >
           <Image
           style={styles.icon}
@@ -649,7 +671,8 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontFamily: FONT_BOLD,
+    fontFamily: "Quicksand-VariableFont_wght",
+   
    
   },
  
@@ -660,13 +683,13 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 13,
-    fontFamily: FONT_REGULAR,
+    fontFamily: "Comfortaa-VariableFont_wght",
     marginBottom: 4,
   },
   input: {
    
     fontSize: 14,
-    fontFamily: FONT_REGULAR,
+    fontFamily: "Comfortaa-VariableFont_wght",
     height: 44,
     borderWidth: 1,
     borderColor: FIELD_BORDER,
@@ -679,7 +702,7 @@ const styles = StyleSheet.create({
   errorText: {
     color: ERROR,
     fontSize: 12,
-    fontFamily: FONT_REGULAR,
+    fontFamily: "Comfortaa-VariableFont_wght",
     marginTop: 4,
     marginLeft: 4,
   },
@@ -692,14 +715,14 @@ const styles = StyleSheet.create({
   },
   dropdownText: {
     fontSize: 14,
-    fontFamily: FONT_REGULAR,
+    fontFamily: "Comfortaa-VariableFont_wght",
     
   },
   placeholderText: {
     color: '#999999',
   },
   boldText: {
-    fontFamily: FONT_BOLD,
+    fontFamily: "Comfortaa-VariableFont_wght",
   },
  
   // ---- image preview ----
@@ -715,6 +738,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#EDEDED',
     marginBottom: 16,
     resizeMode: 'cover',
+  },
+   iconContainer: {
+    borderRadius: 8,
+    backgroundColor: "white",
+    padding: 4,
+
   },
  
   // ---- buttons (black, blue when pressed) ----
@@ -735,7 +764,7 @@ const styles = StyleSheet.create({
   buttonText: {
     
     fontSize: 15,
-    fontFamily: FONT_BOLD,
+    fontFamily: "Comfortaa-VariableFont_wght",
   },
   submitButton: {
     minWidth: 180,

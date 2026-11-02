@@ -73,7 +73,8 @@ const styles = StyleSheet.create({
   title: {
     color: '#FFFFFF',
     fontSize: 26,
-    fontWeight: '700',
+   
+    fontFamily: "Quicksand-VariableFont_wght"
   },
   hint: {
     position: 'absolute',
@@ -82,10 +83,12 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 14,
     paddingVertical: 7,
+   
   },
   hintText: {
     color: '#FFFFFF',
     fontSize: 13,
+     fontFamily: "Comfortaa-VariableFont_wght"
   },
 });
 

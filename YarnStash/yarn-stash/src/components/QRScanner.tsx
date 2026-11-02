@@ -82,7 +82,7 @@ useFocusEffect(
 
     return(
         <>
-         <Pressable onPress={()=> {setIsScanned(false); setVisible(true)}}>
+         <Pressable style={styles.iconContainer} onPress={()=> {setIsScanned(false); setVisible(true)}}>
         <Image
         style={styles.icon}
           source={require('../../assets/images/icons/dark-qr-scan.png')}/>
@@ -97,9 +97,7 @@ useFocusEffect(
             onBarcodeScanned={isScanned? undefined: handleScan}/>
            <ScannerUI title="QR Code"/>
          
-          <Pressable onPress={() => setVisible(false)} style={{ position: 'absolute', top: 60, left: 20 }}>
-            <Text style={{ color: activeColors.buttonText }}>Close</Text>
-          </Pressable>
+          
         </SafeAreaView>
 
     </Modal>
@@ -111,7 +109,6 @@ useFocusEffect(
 }
 const BUTTON = '#000000';
 
-const FONT_BOLD = 'Comfortaa_700Bold';
 
 const styles = StyleSheet.create({
     container: {
@@ -137,8 +134,14 @@ const styles = StyleSheet.create({
   icon : {
 width:30,
 height: 30,
-borderRadius:8,
+
 backgroundColor: '#ffffff',
+  },
+  iconContainer: {
+    borderRadius: 8,
+    backgroundColor: "white",
+    padding: 4,
+
   },
    button: {
     flexDirection: 'row',

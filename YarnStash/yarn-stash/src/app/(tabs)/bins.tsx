@@ -78,10 +78,10 @@ const router = useRouter();
       if(!qrBinPath){
         return;
       }
-      async()=>{
+      (async()=>{
 
         try{
-          const qrBin= await db.getFirstAsync<Bin>(`SELECT * FROM bins WHERE title = ${Number(qrBinPath)}`)
+          const qrBin= await db.getFirstAsync<Bin>(`SELECT * FROM bins WHERE id = ${Number(qrBinPath)}`)
         if (qrBin){
           setPressedBin(qrBin)
         setIsBinSelected(true)
@@ -93,11 +93,11 @@ Alert.alert('Bin not found', 'This QR code points to a bin that no longer exists
  console.log('error opening bin from QR', e);
         }finally{
            // clear the param so scanning the same bin again re-triggers this
-      router.setParams({ qrBinId: '' });
+      router.setParams({ qrBinPath: '' });
         }
 
 
-      }
+      })();
     },[qrBinPath])
      
     

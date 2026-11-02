@@ -15,7 +15,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage":"./assets/images/icon.png",
+        "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#E6F4FE"
       },
       "predictiveBackGestureEnabled": false,
@@ -67,13 +67,24 @@
           }
         }
       ],
-      ["expo-camera",
+      [
+        "expo-camera",
         {
           "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera",
           "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone",
           "barcodeScannerEnabled": true
-        }],
-      "expo-web-browser"
+        }
+      ],
+      "expo-web-browser",
+      [
+"expo-font",
+      {
+        "fonts": [
+          "./assets/fonts/Comfortaa-VariableFont_wght.ttf",
+          "./assets/fonts/Quicksand-VariableFont_wght.ttf"
+        ]
+      }
+    ]
     ],
     "experiments": {
       "typedRoutes": true,

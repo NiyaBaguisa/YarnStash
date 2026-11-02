@@ -104,8 +104,8 @@ const renderItem = ({item}:{item: RavelrySearchResult} ) => {
                   <Text style={[styles.name, {color: activeColors.text}]}>{item.name}</Text>
       <Text style={[styles.detailText,{color: activeColors.text}]}>Brand: {item.yarn_company_name}</Text>
       <Text style={[styles.detailText,{color: activeColors.text}]}>Color way: </Text>
-      <Text style={[styles.detailText,{color: activeColors.text}]}>Weight: #{item.gauge_divisor} {item.yarn_weight.name}</Text>
-      <Text style={[styles.detailText,{color: activeColors.text}]}>Fiber:</Text>
+      <Text style={[styles.detailText,{color: activeColors.text}]}>Weight: #{item.gauge_divisor}</Text>
+
 
                 </View>
       
@@ -120,7 +120,7 @@ const renderItem = ({item}:{item: RavelrySearchResult} ) => {
   <View style={styles.header}>
     <Text style={[styles.title,{color: activeColors.text},]}>Results</Text>
     <Pressable onPress={onClose}>
-      <Text>Close</Text>
+      <Text style={[styles.detailText, {color: activeColors.text}]}>Close</Text>
     </Pressable>
 
   </View>
@@ -162,10 +162,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 8,
     paddingBottom: 12,
+    width: "80%"
   },
   title: {
     fontSize: 24,
-   fontFamily: FONT_BOLD,
+   fontFamily: "Quicksand-VariableFont_wght",
     marginBottom: 12,
    
   },
@@ -185,7 +186,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    
+    marginBottom: 8,
     borderWidth: 4,
    
     borderRadius: 24,
@@ -205,14 +206,14 @@ const styles = StyleSheet.create({
   },
    name: {
     fontSize: 16,
-    fontFamily: FONT_BOLD,
+    fontFamily: "Comfortaa-VariableFont_wght",
     
     marginBottom: 4,
   },
   detailText: {
     fontSize: 13,
     lineHeight: 18,
-    fontFamily: FONT_REGULAR,
+    fontFamily: "Comfortaa-VariableFont_wght",
     
   },
 });

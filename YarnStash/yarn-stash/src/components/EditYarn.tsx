@@ -156,7 +156,7 @@ function closeModal(){
 const OUTLINE = '#000000';
 const BG = '#FFFFFF';
 
-const FONT_BOLD = 'Comfortaa_700Bold';
+
 
 const styles = StyleSheet.create({
   overlay: {
@@ -186,7 +186,7 @@ const styles = StyleSheet.create({
   },
   pillText: {
     fontSize: 16,
-    fontFamily: FONT_BOLD,
+     fontFamily: "Comfortaa-VariableFont_wght",
     color: "#222222"
   },
 });

@@ -137,7 +137,7 @@ async function fetchRavelry(query : string) {
    
    // store the best matches in an array 
      let bestMatches : RavelrySearchResult[]=[];
-// loop through the top 10 and query for colorway
+// loop through the top items and query for colorway
 
 for (const item of data.yarns as RavelrySearchResult[]) {
   //search id 

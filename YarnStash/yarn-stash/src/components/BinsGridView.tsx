@@ -28,8 +28,8 @@ export default function BinsGridView({data, pressedBin, setPressedBin, onBinDele
 //map bins as Bin thumbnails
     return (
         <SafeAreaView style={styles.container}>
-            <Text style={{color: activeColors.text}}>Long press to delete a bin</Text>
-            <Text style={[styles.header, {color: activeColors.text}]}>{data.length} Bins</Text>
+            <Text style={{color: activeColors.text, fontFamily: "Comfortaa-VariableFont_wght"}}>Long press to delete a bin</Text>
+            <Text style={[styles.header, {color: activeColors.text, fontFamily: "Quicksand-VariableFont_wght"}]}>{data.length} Bins</Text>
               <FlatList
       data={data}
       ListEmptyComponent={<EmptyData />}

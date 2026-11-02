@@ -76,15 +76,15 @@ const styles = StyleSheet.create({
  
   title: {
     fontSize: 26,
-    fontWeight: '800',
-    
+   
+     fontFamily: "Quicksand-VariableFont_wght",
     textAlign: 'center',
     marginBottom: 10,
   },
   message: {
     fontSize: 16,
     lineHeight: 23,
-    
+     fontFamily: "Comfortaa-VariableFont_wght",
     textAlign: 'center',
     maxWidth: 280,
   },

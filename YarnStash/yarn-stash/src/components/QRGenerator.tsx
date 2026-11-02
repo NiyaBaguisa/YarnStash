@@ -27,7 +27,7 @@ if(binId === undefined){
    
     return(
         <SafeAreaView>
-<Pressable onPress={generate}>
+<Pressable style={styles.iconContainer} onPress={generate}>
  <Image
           style={styles.icon}
           source={require('../../assets/images/icons/qr-icon.png')}/>
@@ -76,6 +76,12 @@ overlay: {
   justifyContent: "center",
   backgroundColor: "rgba(0,0,0,0.45)",
 },
+ iconContainer: {
+    borderRadius: 8,
+    backgroundColor: "white",
+    padding: 4,
+
+  },
 
 card: {
   

@@ -148,14 +148,14 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     lineHeight: 24,
-    fontFamily: FONT_BOLD,
+    fontFamily: "Quicksand-VariableFont_wght",
     color: INK,
     textAlign: 'center',
   },
   subtitle: {
     fontSize: 13,
     lineHeight: 18,
-    fontFamily: FONT_REGULAR,
+    fontFamily: "Comfortaa-VariableFont_wght",
     color: INK,
     textAlign: 'center',
     marginTop: 8,
@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: 15,
-    fontFamily: FONT_BOLD,
+     fontFamily: "Comfortaa-VariableFont_wght",
   },
   cancelText: {
     color: INK,

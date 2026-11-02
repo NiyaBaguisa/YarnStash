@@ -119,16 +119,16 @@ const styles = StyleSheet.create({
  title:{
   fontSize: 28,
   lineHeight: 34,
-  fontFamily: FONT_REGULAR,
+  fontFamily: "Quicksand-VariableFont_wght",
  
  },
  skeins:{
   fontSize: 16,
-  fontFamily: FONT_REGULAR,
+  fontFamily: "Comfortaa-VariableFont_wght",
   
  },
 skeinCount:{
-  fontFamily: FONT_BOLD,
+  fontFamily: "Quicksand-VariableFont_wght",
  },
   gridContainer: {
    flexDirection: 'row',
