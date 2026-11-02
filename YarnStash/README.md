@@ -37,7 +37,9 @@ Users should be able to:
  Video Demo Dark: https://youtube.com/shorts/mgqnVdmWohc?feature=share
 
 Short Video Demo Light
- <video src="https://github.com/user-attachments/assets/c804cbcb-8f34-4a3b-8fba-42e42f4273e2" width="400" controls></video>
+
+
+https://github.com/user-attachments/assets/a9e45cfb-f411-4c5d-a77c-aa7ece086e6e
 
 
 <table>
