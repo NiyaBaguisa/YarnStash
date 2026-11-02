@@ -6,7 +6,6 @@
 - [Overview](#overview)
   - [Functional Requirements](#functional-requirements)
   - [Screenshots](#screenshots)
-  - [Links](#links)
 - [My process](#my-process)
   - [Built with](#built-with)
   - [What I learned](#what-i-learned)
@@ -35,9 +34,12 @@ Users should be able to:
 
 
 ### Screenshots
- Video Demo Light
- Video Demo Dark
- 
+ Video Demo Dark: https://youtube.com/shorts/mgqnVdmWohc?feature=share
+
+Short Video Demo Light
+ <video src="https://github.com/user-attachments/assets/c804cbcb-8f34-4a3b-8fba-42e42f4273e2" width="400" controls></video>
+
+
 <table>
   <tr>
     <th>Home Page</th>
@@ -65,13 +67,11 @@ Users should be able to:
     <th>Bins Page (Dark Mode)</th>
   </tr>
   <tr>
-    <td><img width="300" alt="Bins Page (Dark Mode)" src="https://github.com/user-attachments/assets/281c70b5-a0aa-471f-bfcc-68c10f28c8d1" /></td>
+    <td><img width="200" alt="Bins Page (Dark Mode)" src="https://github.com/user-attachments/assets/281c70b5-a0aa-471f-bfcc-68c10f28c8d1" /></td>
   </tr>
 </table>
-### Links
 
-- Download the App: [Add live site URL here](https://your-live-site-url.com)
-- view Figma file: []
+[view Figma file](https://www.figma.com/design/ITYYAsHmlXpDcfqyjczdtH/Yarn-Stash?node-id=191-1151&t=U6NIwb2CBsABPbi8-1)
 ## My process
 
 ### Built with
