@@ -1,14 +1,11 @@
 # Yarn Stash – Inventory tracker for Fiber Artists
-
-
-![This is an alt text.](/image/Markdown-mark.svg "This is a sample image.")
-
+<img width="2240" height="1260" alt="Untitled design (2)" src="https://github.com/user-attachments/assets/7725c85e-50ce-4bff-98b0-398a737fd3a5" />
 
 ## Table of contents
 
 - [Overview](#overview)
   - [Functional Requirements](#functional-requirements)
-  - [Screenshot](#screenshot)
+  - [Screenshots](#screenshots)
   - [Links](#links)
 - [My process](#my-process)
   - [Built with](#built-with)
@@ -37,18 +34,40 @@ Users should be able to:
 - View details of each yarn item at a glance 
 
 
-### Screenshot
- Video embed 
-You may be using [Markdown Live Preview](https://markdownlivepreview.com/).
-Demo
-![My Project Screenshot](./images/screenshot.png)
-Home page
-![My Project Screenshot](./images/screenshot.png)
-Bins page
-![My Project Screenshot](./images/screenshot.png)
+### Screenshots
+ Video Demo Light
+ Video Demo Dark
+ 
+<table>
+  <tr>
+    <th>Home Page</th>
+  </tr>
+  <tr>
+    <td><img width="200" alt="Screen_Recording_20261102_161332_yarn-stash" src="https://github.com/user-attachments/assets/885137b5-e705-4314-88e6-9027068e5dd8" /></td>
+  </tr>
+</table>
+<table>
+  <tr>
+    <th>Add New Yarn Form</th>
+    <th>Form with Validation</th>
+  <th>Dark Mode Form</th>
+  </tr>
+  <tr>
+    <td><img width="200" alt="Add New Yarn Form" src="https://github.com/user-attachments/assets/77db2bdf-9f87-454d-a0b0-d7d266505e77" /></td>
+    <td><img width="200" alt="Form with validation" src="https://github.com/user-attachments/assets/f21ffc89-5968-42ce-9e05-aa8b3fe00e9d" /></td>
+    <td><img width="200" alt="Screen_Recording_20261031_144813_yarn-stash(1)(1)" src="https://github.com/user-attachments/assets/a218fbda-6add-4ce4-8426-9f349d1613e6" />
+</td>
+  </tr>
+</table>
 
-New Yarn Form
-
+<table>
+  <tr>
+    <th>Bins Page (Dark Mode)</th>
+  </tr>
+  <tr>
+    <td><img width="300" alt="Bins Page (Dark Mode)" src="https://github.com/user-attachments/assets/281c70b5-a0aa-471f-bfcc-68c10f28c8d1" /></td>
+  </tr>
+</table>
 ### Links
 
 - Download the App: [Add live site URL here](https://your-live-site-url.com)
@@ -73,7 +92,7 @@ New Yarn Form
 
 One feature that I am proud of within this application is the main barcode scan, api fetch, and form fill feature. This was my first time working with API endpoints and I am really glad that I added this feature because it makes adding store bought yarn easier as all of the fields in the form can be completed with just one scan using the phone’s camera. The API’s that I used do not encapsulate every ball of yarn available but it can handle some of the more popular brands of yarn in America.  Below is a brief snippet of the process of handling the barcode fetches. First I run the barcode number through a barcode database and then use the resulting item name to run it through a yarn database to get more details about the yarn item.
 
-```js
+```tsx
 // Use the name of the product from the upcscan to query same item in ravelry
 async function fetchRavelry(query : string) {
  
