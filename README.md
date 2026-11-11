@@ -84,7 +84,6 @@ https://github.com/user-attachments/assets/a9e45cfb-f411-4c5d-a77c-aa7ece086e6e
 -[SQLite](https://www.sqlitetutorial.net/)
 - [React Hook Forms](https://react-hook-form.com/)
 - [React](https://reactjs.org/)
-- [Next.js](https://nextjs.org/) 
 - [React Native](https://reactnative.dev/) 
 -[Expo](https://expo.dev/) 
 - [react-native-qrcode-svg](https://www.npmjs.com/package/react-native-qrcode-svg)
